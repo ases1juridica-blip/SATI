@@ -1,0 +1,6 @@
+{
+  "name": "Intelligent Early Warning System (SATI)",
+  "description": "An intelligent system to capture, manage, and generate early warnings about the expiration of critical employee documents using AI. The application is bilingual (English/Spanish).",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
