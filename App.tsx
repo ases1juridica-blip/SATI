@@ -6,12 +6,16 @@ import { AIAssistantDrawer } from './components/AIAssistantDrawer';
 import { DocumentUpload } from './components/DocumentUpload';
 import { SettingsModal } from './components/SettingsModal';
 import { DocumentDetailModal, DocumentDetailData } from './components/DocumentDetailModal';
+import { NotificationDraftModal, NotificationDraftData } from './components/NotificationDraftModal';
 import { Employee, Document, DocumentType, ExtractedDocumentInfo, Language, Alert, AlertLevel, AlertSchedule } from './types';
 import { translations, INITIAL_ALERT_SCHEDULE } from './constants';
 import { 
   EmailIcon, 
   SmsIcon, 
   PhoneIcon, 
+  WhatsAppIcon,
+  TelegramIcon,
+  DiscordIcon,
   CalendarIcon, 
   AlertTriangleIcon, 
   CheckCircleIcon, 
@@ -172,12 +176,45 @@ const StatusBadge: React.FC<{ days: number; lang: Language }> = ({ days, lang })
 };
 
 const AlertChannelIcon: React.FC<{ channel: string }> = ({ channel }) => {
-  const lowerChannel = channel.toLowerCase();
-  if (lowerChannel.includes('email')) return <EmailIcon className="h-4 w-4" title="Email" />;
-  if (lowerChannel.includes('sms')) return <SmsIcon className="h-4 w-4" title="SMS" />;
-  if (lowerChannel.includes('call')) return <PhoneIcon className="h-4 w-4" title="Automated Call" />;
-  if (lowerChannel.includes('calendar')) return <CalendarIcon className="h-4 w-4" title="Calendar Task" />;
-  return null;
+  const lower = channel.toLowerCase();
+  if (lower.includes('whatsapp')) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" title="WhatsApp">
+        <WhatsAppIcon className="h-3.5 w-3.5" />
+        <span>WhatsApp</span>
+      </span>
+    );
+  }
+  if (lower.includes('telegram')) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20" title="Telegram">
+        <TelegramIcon className="h-3.5 w-3.5" />
+        <span>Telegram</span>
+      </span>
+    );
+  }
+  if (lower.includes('discord')) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20" title="Discord">
+        <DiscordIcon className="h-3.5 w-3.5" />
+        <span>Discord</span>
+      </span>
+    );
+  }
+  if (lower.includes('phone') || lower.includes('call') || lower.includes('llamada')) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="Voz / Teléfono">
+        <PhoneIcon className="h-3.5 w-3.5" />
+        <span>Teléfono</span>
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20" title="Email">
+      <EmailIcon className="h-3.5 w-3.5" />
+      <span>Email</span>
+    </span>
+  );
 };
 
 const getAlertLevelColor = (level: AlertLevel): string => {
@@ -214,12 +251,19 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [selectedDocDetail, setSelectedDocDetail] = useState<DocumentDetailData | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedNotificationDraft, setSelectedNotificationDraft] = useState<NotificationDraftData | null>(null);
+  const [isNotificationDraftModalOpen, setIsNotificationDraftModalOpen] = useState(false);
   const [processedDoc, setProcessedDoc] = useState<ExtractedDocumentInfo | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleOpenDetailModal = (docData: DocumentDetailData) => {
     setSelectedDocDetail(docData);
     setIsDetailModalOpen(true);
+  };
+
+  const handleOpenNotificationDraftModal = (draftData: NotificationDraftData) => {
+    setSelectedNotificationDraft(draftData);
+    setIsNotificationDraftModalOpen(true);
   };
 
   const t = translations[lang];
@@ -821,7 +865,7 @@ const App: React.FC = () => {
                                 - <StatusBadge days={alert.daysRemaining} lang={lang} />
                               </p>
                             </div>
-                            <div className="flex items-center space-x-1.5 text-slate-500">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               {alert.channels.map((ch) => (
                                 <AlertChannelIcon key={ch} channel={ch} />
                               ))}
@@ -830,17 +874,26 @@ const App: React.FC = () => {
                           <p className="mt-2 text-xs font-medium text-slate-700 dark:text-slate-300">
                             {alert.message}
                           </p>
-                          <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-200/50 dark:border-slate-700/50 pt-2">
-                            <span>Destinatarios: {alert.recipients.join(', ')}</span>
+                          <div className="mt-3 flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-700/50 pt-2 gap-2">
+                            <span>Destinatarios: <strong>{alert.recipients.join(', ')}</strong></span>
                             <button
                               onClick={() =>
-                                handleOpenAIDrawer(
-                                  `Generar carta de aviso para ${alert.employee.name} sobre ${alert.document.type}`
-                                )
+                                handleOpenNotificationDraftModal({
+                                  alertId: alert.document.id,
+                                  employeeName: alert.employee.name,
+                                  documentType: alert.document.type,
+                                  expiryDate: alert.document.expiryDate,
+                                  daysRemaining: alert.daysRemaining,
+                                  campus: alert.employee.campus,
+                                  originalMessage: alert.message,
+                                  recipients: alert.recipients,
+                                  channels: alert.channels,
+                                })
                               }
-                              className="text-indigo-500 font-bold hover:underline"
+                              className="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-extrabold text-[11px] transition-colors flex items-center gap-1"
                             >
-                              Redactar Notificación IA →
+                              <SparklesIcon className="w-3.5 h-3.5 text-indigo-500" />
+                              <span>Redactar / Rehacer Mensaje IA →</span>
                             </button>
                           </div>
                         </div>
@@ -1067,6 +1120,20 @@ const App: React.FC = () => {
         lang={lang}
         onAskAI={(query) => handleOpenAIDrawer(query)}
         onOpenUpload={() => setIsUploadModalOpen(true)}
+      />
+
+      <NotificationDraftModal
+        isOpen={isNotificationDraftModalOpen}
+        onClose={() => {
+          setIsNotificationDraftModalOpen(false);
+          setSelectedNotificationDraft(null);
+        }}
+        alertData={selectedNotificationDraft}
+        lang={lang}
+        onSendSuccess={(alertId, channel, updatedMsg) => {
+          setToastMessage(`Notificación reenviada exitosamente por ${channel?.toUpperCase()} a ${selectedNotificationDraft?.employeeName}`);
+          setTimeout(() => setToastMessage(null), 5000);
+        }}
       />
     </div>
   );

@@ -164,19 +164,19 @@ export const translations: Record<Language, Record<string, string>> = {
 
 export const INITIAL_ALERT_SCHEDULE: AlertSchedule = {
     'Contract': [
-        { id: 'c1', days: 120, level: AlertLevel.Info, message: "FIRST WARNING: Contract ends in 4 months. Start internal renewal talks.", recipients: ['HR', 'Direct Manager'], channels: ['Email'] },
-        { id: 'c2', days: 90, level: AlertLevel.Formal, message: "FORMAL NOTICE: Official contract expiration reminder. Renewal notification required by [Deadline Date].", recipients: ['HR', 'Employee', 'Manager'], channels: ['Email (Formal)'] },
+        { id: 'c1', days: 120, level: AlertLevel.Info, message: "FIRST WARNING: Contract ends in 4 months. Start internal renewal talks.", recipients: ['HR', 'Direct Manager'], channels: ['Email', 'Telegram'] },
+        { id: 'c2', days: 90, level: AlertLevel.Formal, message: "FORMAL NOTICE: Official contract expiration reminder. Renewal notification required by [Deadline Date].", recipients: ['HR', 'Employee', 'Manager'], channels: ['Email', 'WhatsApp'] },
     ],
     'Visa': [
-        { id: 'v1', days: 90, level: AlertLevel.Info, message: "PROCESS START: Your visa/permit expires in 90 days. Renewal process initiated. Please prepare documents [List].", recipients: ['Employee', 'HR'], channels: ['Email', 'Calendar Task'] },
+        { id: 'v1', days: 90, level: AlertLevel.Info, message: "PROCESS START: Your visa/permit expires in 90 days. Renewal process initiated. Please prepare documents [List].", recipients: ['Employee', 'HR'], channels: ['WhatsApp', 'Email'] },
     ],
     'Work Permit': [
-        { id: 'wp1', days: 90, level: AlertLevel.Info, message: "PROCESS START: Your visa/permit expires in 90 days. Renewal process initiated. Please prepare documents [List].", recipients: ['Employee', 'HR'], channels: ['Email', 'Calendar Task'] },
+        { id: 'wp1', days: 90, level: AlertLevel.Info, message: "PROCESS START: Your visa/permit expires in 90 days. Renewal process initiated. Please prepare documents [List].", recipients: ['Employee', 'HR'], channels: ['Discord', 'Email'] },
     ],
     'Default': [
-        { id: 'd1', days: 60, level: AlertLevel.FollowUp, message: "FOLLOW-UP: 60 days remaining. Renewal process should be underway. Any impediments?", recipients: ['Employee', 'HR'], channels: ['Email'] },
-        { id: 'd2', days: 30, level: AlertLevel.Medium, message: "MEDIUM ALERT: Attention! Your document expires in 30 days. Renewal should be in its final phase.", recipients: ['Employee', 'HR', 'Manager'], channels: ['Email', 'SMS'] },
-        { id: 'd3', days: 15, level: AlertLevel.High, message: "HIGH ALERT: URGENT! Your document expires in 15 days. If renewal is not complete, contact HR immediately.", recipients: ['Employee', 'HR', 'Manager'], channels: ['Email', 'SMS'] },
-        { id: 'd4', days: 7, level: AlertLevel.Critical, message: "CRITICAL ALERT: FINAL ALERT! Your document expires in 7 days. Imminent risk of fines and work suspension.", recipients: ['Employee', 'HR', 'Manager', 'Director'], channels: ['Email', 'SMS', 'Automated Call'] },
+        { id: 'd1', days: 60, level: AlertLevel.FollowUp, message: "FOLLOW-UP: 60 days remaining. Renewal process should be underway. Any impediments?", recipients: ['Employee', 'HR'], channels: ['Email', 'WhatsApp'] },
+        { id: 'd2', days: 30, level: AlertLevel.Medium, message: "MEDIUM ALERT: Attention! Your document expires in 30 days. Renewal should be in its final phase.", recipients: ['Employee', 'HR', 'Manager'], channels: ['WhatsApp', 'Telegram'] },
+        { id: 'd3', days: 15, level: AlertLevel.High, message: "HIGH ALERT: URGENT! Your document expires in 15 days. If renewal is not complete, contact HR immediately.", recipients: ['Employee', 'HR', 'Manager'], channels: ['WhatsApp', 'Discord'] },
+        { id: 'd4', days: 7, level: AlertLevel.Critical, message: "CRITICAL ALERT: FINAL ALERT! Your document expires in 7 days. Imminent risk of fines and work suspension.", recipients: ['Employee', 'HR', 'Manager', 'Director'], channels: ['Email', 'Phone', 'WhatsApp'] },
     ]
 };
