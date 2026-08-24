@@ -106,31 +106,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed top-0 bottom-0 ${isRtl ? 'right-0 border-l' : 'left-0 border-r'} z-30 transition-all duration-300 ease-in-out glass-panel dark:bg-slate-900/90 dark:border-slate-800 border-slate-200 shadow-xl flex flex-col ${
-        isCollapsed ? 'w-20' : 'w-64'
+      className={`fixed top-16 md:top-0 bottom-0 ${
+        isRtl ? 'right-0 border-l' : 'left-0 border-r'
+      } z-40 transition-all duration-300 ease-in-out glass-panel dark:bg-slate-900/95 dark:border-slate-800 border-slate-200 shadow-2xl flex flex-col ${
+        isCollapsed
+          ? isRtl
+            ? 'translate-x-full md:translate-x-0 w-64 md:w-20'
+            : '-translate-x-full md:translate-x-0 w-64 md:w-20'
+          : 'translate-x-0 w-64'
       }`}
     >
       {/* Brand Header */}
-      <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
+      <div className="h-14 md:h-16 px-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
         <div className="flex items-center space-x-3 rtl:space-x-reverse overflow-hidden">
-          {isCollapsed ? (
-            <img 
-              src="assets/cropped-cropped-LOGO-32x32.png" 
-              alt="JGroupTech Logo" 
-              className="w-9 h-9 object-contain rounded-lg"
-            />
-          ) : (
-            <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
+          <div className="md:hidden flex items-center space-x-2 rtl:space-x-reverse">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+              {lang === Language.ES ? 'Navegación SATI' : lang === Language.AR ? 'التصفح الرئيسي' : 'SATI Navigation'}
+            </span>
+          </div>
+          <div className="hidden md:flex items-center space-x-2.5 rtl:space-x-reverse">
+            {isCollapsed ? (
               <img 
-                src="assets/cropped-jgrouptech-logo.png" 
+                src="assets/cropped-cropped-LOGO-32x32.png" 
                 alt="JGroupTech Logo" 
-                className="h-10 w-auto max-w-[150px] object-contain"
+                className="w-9 h-9 object-contain rounded-lg"
               />
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/20 whitespace-nowrap">
-                PRO v2.5
-              </span>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
+                <img 
+                  src="assets/cropped-jgrouptech-logo.png" 
+                  alt="JGroupTech Logo" 
+                  className="h-10 w-auto max-w-[150px] object-contain"
+                />
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/20 whitespace-nowrap">
+                  PRO v2.5
+                </span>
+              </div>
+            )}
+          </div>
         </div>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}

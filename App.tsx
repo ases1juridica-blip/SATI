@@ -203,7 +203,9 @@ const App: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isAIDrawerOpen, setIsAIDrawerOpen] = useState(false);
   const [aiDrawerQuery, setAiDrawerQuery] = useState<string | undefined>(undefined);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(
+    () => typeof window !== 'undefined' && window.innerWidth < 768
+  );
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [documentCategoryFilter, setDocumentCategoryFilter] = useState<string>('ALL');
@@ -351,7 +353,8 @@ const App: React.FC = () => {
       {!isSidebarCollapsed && (
         <div
           onClick={() => setIsSidebarCollapsed(true)}
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-20 md:hidden transition-opacity"
+          onTouchStart={() => setIsSidebarCollapsed(true)}
+          className="fixed inset-0 top-16 bg-slate-950/60 backdrop-blur-xs z-30 md:hidden transition-opacity cursor-pointer"
         />
       )}
 

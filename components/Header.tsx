@@ -61,8 +61,8 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-20 glass-panel dark:bg-slate-900/80 dark:border-slate-800 border-slate-200 px-4 py-3 transition-colors">
-      <div className="flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 h-16 glass-panel dark:bg-slate-900/90 dark:border-slate-800 border-slate-200 px-4 transition-colors flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 w-full">
         {/* Left Side: Sidebar Toggle & Search */}
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
           <button
