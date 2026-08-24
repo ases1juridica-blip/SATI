@@ -5,6 +5,7 @@ import { AIPromptHero } from './components/AIPromptHero';
 import { AIAssistantDrawer } from './components/AIAssistantDrawer';
 import { DocumentUpload } from './components/DocumentUpload';
 import { SettingsModal } from './components/SettingsModal';
+import { DocumentDetailModal, DocumentDetailData } from './components/DocumentDetailModal';
 import { Employee, Document, DocumentType, ExtractedDocumentInfo, Language, Alert, AlertLevel, AlertSchedule } from './types';
 import { translations, INITIAL_ALERT_SCHEDULE } from './constants';
 import { 
@@ -211,8 +212,15 @@ const App: React.FC = () => {
   const [documentCategoryFilter, setDocumentCategoryFilter] = useState<string>('ALL');
   const [staffRoleFilter, setStaffRoleFilter] = useState<string>('ALL');
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [selectedDocDetail, setSelectedDocDetail] = useState<DocumentDetailData | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [processedDoc, setProcessedDoc] = useState<ExtractedDocumentInfo | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleOpenDetailModal = (docData: DocumentDetailData) => {
+    setSelectedDocDetail(docData);
+    setIsDetailModalOpen(true);
+  };
 
   const t = translations[lang];
 
@@ -621,9 +629,13 @@ const App: React.FC = () => {
                               <td className="p-4 text-center">
                                 <button
                                   onClick={() =>
-                                    handleOpenAIDrawer(
-                                      `Renovar documento ${doc.type} para ${doc.employeeName}`
-                                    )
+                                    handleOpenDetailModal({
+                                      employeeName: doc.employeeName,
+                                      campus: doc.campus,
+                                      documentType: doc.type,
+                                      expiryDate: doc.expiryDate,
+                                      daysLeft,
+                                    })
                                   }
                                   className="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-[11px] transition-colors"
                                 >
@@ -755,13 +767,17 @@ const App: React.FC = () => {
                                 <td className="p-4 text-center">
                                   <button
                                     onClick={() =>
-                                      handleOpenAIDrawer(
-                                        `Gestionar expediente KHDA para ${doc.employeeName} (${doc.type})`
-                                      )
+                                      handleOpenDetailModal({
+                                        employeeName: doc.employeeName,
+                                        campus: doc.campus,
+                                        documentType: doc.type,
+                                        expiryDate: doc.expiryDate,
+                                        daysLeft,
+                                      })
                                     }
                                     className="px-3 py-1 rounded-lg bg-indigo-600 text-white font-bold text-[11px] shadow-sm hover:bg-indigo-700 transition-colors"
                                   >
-                                    Auditar con Copilot IA
+                                    Ver Expediente
                                   </button>
                                 </td>
                               </tr>
@@ -954,10 +970,19 @@ const App: React.FC = () => {
 
                       <div className="pt-2 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-800">
                         <button
-                          onClick={() => handleOpenAIDrawer(`Revisar expediente docente KHDA de ${emp.name}`)}
+                          onClick={() =>
+                            handleOpenDetailModal({
+                              employeeName: emp.name,
+                              campus: emp.campus,
+                              role: emp.role,
+                              documentType: emp.documents[0]?.type || 'Permiso KHDA',
+                              expiryDate: emp.documents[0]?.expiryDate || '2026-12-31',
+                              daysLeft: emp.documents[0] ? getDaysRemaining(emp.documents[0].expiryDate) : 100,
+                            })
+                          }
                           className="flex-1 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-all text-center"
                         >
-                          Expediente IA
+                          Ver Expediente
                         </button>
                         <button
                           onClick={() => setIsUploadModalOpen(true)}
@@ -1030,6 +1055,18 @@ const App: React.FC = () => {
         schedule={alertSchedule}
         onSave={handleSaveSettings}
         lang={lang}
+      />
+
+      <DocumentDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedDocDetail(null);
+        }}
+        docDetail={selectedDocDetail}
+        lang={lang}
+        onAskAI={(query) => handleOpenAIDrawer(query)}
+        onOpenUpload={() => setIsUploadModalOpen(true)}
       />
     </div>
   );
