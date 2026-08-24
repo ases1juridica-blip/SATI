@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Language, ExtractedDocumentInfo } from '../types';
 import { BotIcon, CloseIcon, SparklesIcon, FileTextIcon, ShieldCheckIcon, CheckCircleIcon } from './Icons';
 import { askGeminiAssistant, checkGeminiConnection } from '../services/geminiService';
+import { GeminiLiveWebSocket, ConnectionStatus } from '../services/geminiLiveWebSocket';
 
 interface AIAssistantDrawerProps {
   isOpen: boolean;
@@ -53,22 +54,93 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
       sender: 'ai',
       text:
         lang === Language.ES
-          ? '¡Hola! Soy **SATI Copilot (Gemini Live AI)**, tu asistente especializado en el Sistema de Alerta Temprana y regulación docente KHDA en los 37 campus de Dubái. ¿En qué puedo ayudarte hoy?'
+          ? '¡Hola! Soy **SATI Copilot (Gemini Live WebSocket AI)**, tu asistente especializado en el Sistema de Alerta Temprana y regulación docente KHDA en los 37 campus de Dubái. ¿En qué puedo ayudarte hoy?'
           : lang === Language.AR
-          ? 'مرحباً! أنا مساعد SATI الذكي المباشر (Gemini AI Live). كيف يمكنني مساعدتك اليوم؟'
-          : 'Hello! I am **SATI Copilot (Gemini Live AI)**, your intelligent assistant for KHDA compliance & early warning alerts in Dubai. How can I help you today?',
+          ? 'مرحباً! أنا مساعد SATI الذكي المباشر (Gemini Live WebSocket AI). كيف يمكنني مساعدتك اليوم؟'
+          : 'Hello! I am **SATI Copilot (Gemini Live WebSocket AI)**, your intelligent assistant for KHDA compliance & early warning alerts in Dubai. How can I help you today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [useWebSocketMode, setUseWebSocketMode] = useState<boolean>(true);
+  const [wsStatus, setWsStatus] = useState<ConnectionStatus>('disconnected');
+
+  const liveWsRef = useRef<GeminiLiveWebSocket | null>(null);
+  const activeAiMsgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    checkGeminiConnection().then((connected) => {
-      setIsConnected(connected);
+    setMessages((prev) => {
+      if (prev.length === 1 && prev[0].id === '1') {
+        return [
+          {
+            id: '1',
+            sender: 'ai',
+            text:
+              lang === Language.ES
+                ? '¡Hola! Soy **SATI Copilot (Gemini Live WebSocket AI)**, tu asistente especializado en el Sistema de Alerta Temprana y regulación docente KHDA en los 37 campus de Dubái. ¿En qué puedo ayudarte hoy?'
+                : lang === Language.AR
+                ? 'مرحباً! أنا مساعد SATI الذكي المباشر (Gemini Live WebSocket AI). كيف يمكنني مساعدتك اليوم؟'
+                : 'Hello! I am **SATI Copilot (Gemini Live WebSocket AI)**, your intelligent assistant for KHDA compliance & early warning alerts in Dubai. How can I help you today?',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+        ];
+      }
+      return prev;
     });
-  }, []);
+  }, [lang]);
+
+  // Initialize Gemini Live WebSocket Connection
+  useEffect(() => {
+    if (isOpen && useWebSocketMode) {
+      const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+      const langName = lang === Language.AR ? 'Arabic (العربية)' : lang === Language.ES ? 'Spanish (Español)' : 'English';
+
+      const liveWs = new GeminiLiveWebSocket({
+        onStatusChange: (status) => {
+          setWsStatus(status);
+        },
+        onTextReceived: (streamedText, isFinished) => {
+          setIsTyping(!isFinished);
+          if (activeAiMsgIdRef.current) {
+            const msgId = activeAiMsgIdRef.current;
+            setMessages((prev) =>
+              prev.map((msg) => (msg.id === msgId ? { ...msg, text: streamedText } : msg))
+            );
+          } else {
+            const newMsgId = `ai-ws-${Date.now()}`;
+            activeAiMsgIdRef.current = newMsgId;
+            const newMsg: Message = {
+              id: newMsgId,
+              sender: 'ai',
+              text: streamedText,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            setMessages((prev) => [...prev, newMsg]);
+          }
+
+          if (isFinished) {
+            activeAiMsgIdRef.current = null;
+          }
+        },
+        onError: (err) => {
+          console.warn('[Gemini Live WS] Connection error, fallback to REST:', err);
+        }
+      });
+
+      const systemPrompt = `CRITICAL MANDATE: You MUST answer ALL responses strictly and ONLY in ${langName}. Do NOT use any other language under any circumstance.
+You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Alerta Temprana y Cumplimiento KHDA) for 37 school campuses in Dubai. Respond in ${langName}.`;
+
+      liveWs.connect(apiKey, systemPrompt);
+      liveWsRef.current = liveWs;
+
+      return () => {
+        liveWs.disconnect();
+        liveWsRef.current = null;
+      };
+    }
+  }, [isOpen, useWebSocketMode, lang]);
 
   useEffect(() => {
     if (processedDoc) {
@@ -80,35 +152,12 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
 
   const handleDocumentProcessedMessage = async (doc: ExtractedDocumentInfo) => {
     const docPrompt = lang === Language.ES
-      ? `📄 **Nuevo documento digitalizado:**\n• **Nombre:** ${doc.employeeName}\n• **Documento:** ${doc.documentType}\n• **Fecha Expiración:** ${doc.expiryDate}${doc.campus ? `\n• **Campus:** ${doc.campus}` : ''}\n\nPor favor analiza la validez del documento, su impacto en la auditoría KHDA y dime si requiere activar una alerta de renovación en SATI.`
-      : `📄 **New document processed:**\n• **Name:** ${doc.employeeName}\n• **Type:** ${doc.documentType}\n• **Expiry:** ${doc.expiryDate}\n\nPlease analyze its KHDA compliance readiness and alert requirements.`;
+      ? `📄 **Nuevo documento digitalizado:**\n• **Nombre:** ${doc.employeeName}\n• **Documento:** ${doc.documentType}\n• **Fecha Expiración:** ${doc.expiryDate}${doc.campus ? `\n• **Campus:** ${doc.campus}` : ''}\n\nPor favor analiza la validez del documento en ESPAÑOL, su impacto en la auditoría KHDA y dime si requiere activar una alerta de renovación en SATI.`
+      : lang === Language.AR
+      ? `📄 **تمت معالجة وثيقة جديدة:**\n• **الاسم:** ${doc.employeeName}\n• **النوع:** ${doc.documentType}\n• **تاريخ الانتهاء:** ${doc.expiryDate}${doc.campus ? `\n• **المجمع:** ${doc.campus}` : ''}\n\nيرجى تحليل مدى الالتزام بـ KHDA والرد باللغة العربية.`
+      : `📄 **New document processed:**\n• **Name:** ${doc.employeeName}\n• **Type:** ${doc.documentType}\n• **Expiry:** ${doc.expiryDate}${doc.campus ? `\n• **Campus:** ${doc.campus}` : ''}\n\nPlease analyze its KHDA compliance readiness and alert requirements in ENGLISH.`;
 
-    const userMsg: Message = {
-      id: `msg-doc-${Date.now()}`,
-      sender: 'user',
-      text: docPrompt,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setIsTyping(true);
-
-    const historyForAi = messages.map(m => ({
-      role: (m.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
-      text: m.text
-    }));
-
-    const aiResponseText = await askGeminiAssistant(docPrompt, historyForAi, lang);
-
-    const aiMsg: Message = {
-      id: `ai-doc-${Date.now()}`,
-      sender: 'ai',
-      text: aiResponseText,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages((prev) => [...prev, aiMsg]);
-    setIsTyping(false);
+    await handleSendUserQuery(docPrompt);
   };
 
   const handleSendUserQuery = async (queryText: string) => {
@@ -120,7 +169,18 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
     };
     setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
+    activeAiMsgIdRef.current = null;
 
+    const targetLang = lang === Language.AR ? 'Arabic (العربية)' : lang === Language.ES ? 'Spanish (Español)' : 'English';
+    const formattedQuery = `[PLEASE RESPOND STRICTLY IN ${targetLang.toUpperCase()}]: ${queryText}`;
+
+    // Try WebSocket Live streaming first
+    if (useWebSocketMode && liveWsRef.current && wsStatus === 'connected') {
+      const sent = liveWsRef.current.sendTextMessage(formattedQuery);
+      if (sent) return;
+    }
+
+    // Fallback REST call
     const historyForAi = messages.map(m => ({
       role: (m.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
       text: m.text
@@ -163,21 +223,23 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
               <div>
                 <h2 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-1.5">
                   SATI Copilot AI
-                  {isConnected === true ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                      Gemini Live
+                  {wsStatus === 'connected' ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                      WS Live
                     </span>
-                  ) : isConnected === false ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                      Offline
+                  ) : isConnected === true ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/30">
+                      Gemini API
                     </span>
                   ) : (
                     <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
                   )}
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {lang === Language.ES ? 'Conectado con Gemini Live API' : 'Connected with Gemini Live API'}
+                  {wsStatus === 'connected'
+                    ? 'Conexión WebSocket Bidireccional Activa'
+                    : lang === Language.ES ? 'Conectado con Gemini Live API' : 'Connected with Gemini Live API'}
                 </p>
               </div>
             </div>
@@ -205,6 +267,17 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
               <ShieldCheckIcon className="w-3.5 h-3.5 text-indigo-500" />
               <span>{lang === Language.ES ? 'Reporte KHDA' : 'KHDA Report'}</span>
             </button>
+            <button
+              onClick={() => setUseWebSocketMode(!useWebSocketMode)}
+              className={`px-2.5 py-1 rounded-lg font-medium text-[11px] flex items-center gap-1 flex-shrink-0 transition-all ${
+                useWebSocketMode
+                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+              }`}
+              title="Alternar entre WebSocket Live Stream y HTTP REST"
+            >
+              ⚡ WS Stream
+            </button>
           </div>
 
           {/* Chat Messages */}
@@ -230,7 +303,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
             {isTyping && (
               <div className="flex items-center space-x-2 text-indigo-500 text-xs font-semibold p-2">
                 <BotIcon className="w-4 h-4 animate-spin" />
-                <span>{lang === Language.ES ? 'Gemini Live AI consultando...' : 'Gemini Live AI processing...'}</span>
+                <span>{lang === Language.ES ? 'Gemini Live AI transmitiendo en tiempo real...' : 'Gemini Live AI streaming...'}</span>
               </div>
             )}
           </div>
@@ -242,7 +315,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder={lang === Language.ES ? 'Escribe una pregunta a Gemini AI...' : 'Ask Gemini AI live...'}
+                placeholder={lang === Language.ES ? 'Escribe una pregunta a Gemini Live WebSocket...' : 'Ask Gemini Live via WebSocket...'}
                 className="flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <button
@@ -259,4 +332,5 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
     </div>
   );
 };
+
 

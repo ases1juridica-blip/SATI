@@ -90,11 +90,41 @@ const createInitialData = (): Employee[] => {
     },
     {
       id: 'emp-5',
+      name: 'Fatima Al-Zahra (Arabic Language Coordinator)',
+      campus: 'Campus 06 - Downtown Dubai',
+      role: 'Teacher',
+      documents: [
+        { id: 'doc-5-1', type: DocumentType.KHDAPermit, expiryDate: addDays(today, 210) },
+        { id: 'doc-5-2', type: DocumentType.Visa, expiryDate: addDays(today, 14) },
+      ]
+    },
+    {
+      id: 'emp-6',
+      name: 'Carlos Mendoza (Physical Education)',
+      campus: 'Campus 01 - Dubai Marina',
+      role: 'Teacher',
+      documents: [
+        { id: 'doc-6-1', type: DocumentType.EmiratesID, expiryDate: addDays(today, 4) },
+        { id: 'doc-6-2', type: DocumentType.MedicalFitness, expiryDate: addDays(today, 120) },
+      ]
+    },
+    {
+      id: 'emp-7',
+      name: 'Dr. Aisha Al-Hassani (KHDA Audit Director)',
+      campus: 'Campus 07 - Academic City',
+      role: 'Administrator',
+      documents: [
+        { id: 'doc-7-1', type: DocumentType.Contract, expiryDate: addDays(today, 240) },
+        { id: 'doc-7-2', type: DocumentType.AttestedDegree, expiryDate: addDays(today, 500) },
+      ]
+    },
+    {
+      id: 'emp-8',
       name: 'Relocated Student #842 (Fast Intake)',
       campus: 'Campus 05 - Dubai South',
       role: 'Student',
       documents: [
-        { id: 'doc-5-1', type: DocumentType.StudentPassport, expiryDate: addDays(today, 300) },
+        { id: 'doc-8-1', type: DocumentType.StudentPassport, expiryDate: addDays(today, 300) },
       ]
     }
   ];
@@ -176,6 +206,8 @@ const App: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [documentCategoryFilter, setDocumentCategoryFilter] = useState<string>('ALL');
+  const [staffRoleFilter, setStaffRoleFilter] = useState<string>('ALL');
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [processedDoc, setProcessedDoc] = useState<ExtractedDocumentInfo | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -315,6 +347,14 @@ const App: React.FC = () => {
       dir={isRtl ? 'rtl' : 'ltr'}
       className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300"
     >
+      {/* Mobile Backdrop Overlay */}
+      {!isSidebarCollapsed && (
+        <div
+          onClick={() => setIsSidebarCollapsed(true)}
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-20 md:hidden transition-opacity"
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <Sidebar
         currentTab={currentTab}
@@ -511,14 +551,14 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Tab 1: Document Matrix */}
+            {/* Tab 1: Dashboard Overview */}
             {currentTab === 'dashboard' && (
               <div className="glass-card rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800">
                 <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900 dark:text-white">{t.dashboard}</h3>
                     <p className="text-xs text-slate-400">
-                      {filteredEmployees.flatMap((e) => e.documents).length} registros de cumplimiento KHDA
+                      {filteredEmployees.flatMap((e) => e.documents).length} registros de cumplimiento KHDA en tiempo real
                     </p>
                   </div>
                   <button
@@ -601,7 +641,137 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 2: Early Warning Alerts */}
+            {/* Tab 2: Matriz Documental KHDA */}
+            {currentTab === 'documents' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="glass-card p-4 rounded-2xl border border-indigo-500/20">
+                    <p className="text-xs font-semibold text-slate-400">Total Documentos Regulación</p>
+                    <h4 className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">1,480</h4>
+                    <p className="text-[11px] text-emerald-500 mt-1">✓ 96.4% En Regla KHDA</p>
+                  </div>
+                  <div className="glass-card p-4 rounded-2xl border border-rose-500/20">
+                    <p className="text-xs font-semibold text-slate-400">Permisos Docentes Críticos</p>
+                    <h4 className="text-2xl font-extrabold text-rose-500 mt-1">4</h4>
+                    <p className="text-[11px] text-rose-400 mt-1">🚨 Alerta Vencimiento &lt;30d</p>
+                  </div>
+                  <div className="glass-card p-4 rounded-2xl border border-amber-500/20">
+                    <p className="text-xs font-semibold text-slate-400">Visados en Trámite</p>
+                    <h4 className="text-2xl font-extrabold text-amber-500 mt-1">12</h4>
+                    <p className="text-[11px] text-amber-400 mt-1">⚠️ Notificación Enviada</p>
+                  </div>
+                  <div className="glass-card p-4 rounded-2xl border border-emerald-500/20">
+                    <p className="text-xs font-semibold text-slate-400">Títulos Apostillados Validados</p>
+                    <h4 className="text-2xl font-extrabold text-emerald-500 mt-1">428</h4>
+                    <p className="text-[11px] text-slate-400 mt-1">Acreditación Ministerio Educación</p>
+                  </div>
+                </div>
+
+                <div className="glass-card rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800">
+                  <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                        <FileTextIcon className="w-5 h-5 text-indigo-500" />
+                        Matriz Documental de Cumplimiento Normativo KHDA
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        Visualizador de Permisos Docentes, Visados de Residencia, Emirates ID y Apostillas en los 37 Campus
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 overflow-x-auto text-xs">
+                      {['ALL', 'KHDA', 'Visa', 'EmiratesID', 'Medical', 'Degree'].map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => setDocumentCategoryFilter(cat)}
+                          className={`px-3 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap ${
+                            documentCategoryFilter === cat
+                              ? 'bg-indigo-600 text-white shadow-md'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                          }`}
+                        >
+                          {cat === 'ALL' ? 'Todos' : cat === 'KHDA' ? 'Permiso KHDA' : cat === 'Visa' ? 'Visa' : cat === 'EmiratesID' ? 'Emirates ID' : cat === 'Medical' ? 'Aptitud Médica' : 'Título Apostillado'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left rtl:text-right text-xs">
+                      <thead className="bg-slate-100/70 dark:bg-slate-900/70 text-slate-500 dark:text-slate-400 uppercase font-extrabold tracking-wider border-b border-slate-200 dark:border-slate-800">
+                        <tr>
+                          <th className="p-4">{t.employee}</th>
+                          <th className="p-4">{t.campusFilter}</th>
+                          <th className="p-4">{t.documentType}</th>
+                          <th className="p-4">{t.expiresOn}</th>
+                          <th className="p-4">{t.status}</th>
+                          <th className="p-4 text-center">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {filteredEmployees
+                          .flatMap((emp) =>
+                            emp.documents.map((doc) => ({
+                              ...doc,
+                              employeeName: emp.name,
+                              employeeId: emp.id,
+                              campus: emp.campus,
+                            }))
+                          )
+                          .filter((doc) => {
+                            if (documentCategoryFilter === 'ALL') return true;
+                            if (documentCategoryFilter === 'KHDA') return doc.type.toLowerCase().includes('khda');
+                            if (documentCategoryFilter === 'Visa') return doc.type.toLowerCase().includes('visa');
+                            if (documentCategoryFilter === 'EmiratesID') return doc.type.toLowerCase().includes('emirates');
+                            if (documentCategoryFilter === 'Medical') return doc.type.toLowerCase().includes('medical') || doc.type.toLowerCase().includes('aptitud');
+                            if (documentCategoryFilter === 'Degree') return doc.type.toLowerCase().includes('degree') || doc.type.toLowerCase().includes('apostillado') || doc.type.toLowerCase().includes('título');
+                            return true;
+                          })
+                          .sort((a, b) => getDaysRemaining(a.expiryDate) - getDaysRemaining(b.expiryDate))
+                          .map((doc) => {
+                            const daysLeft = getDaysRemaining(doc.expiryDate);
+                            return (
+                              <tr
+                                key={`doc-matrix-${doc.employeeId}-${doc.id}`}
+                                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                              >
+                                <td className="p-4 font-bold text-slate-900 dark:text-white">
+                                  {doc.employeeName}
+                                </td>
+                                <td className="p-4 text-slate-500 dark:text-slate-400 font-medium">
+                                  {doc.campus}
+                                </td>
+                                <td className="p-4 font-semibold text-indigo-600 dark:text-indigo-400">
+                                  {t[doc.type.replace(/\s/g, '').toLowerCase() as keyof typeof t] || doc.type}
+                                </td>
+                                <td className="p-4 text-slate-700 dark:text-slate-300 font-mono">
+                                  {doc.expiryDate}
+                                </td>
+                                <td className="p-4">
+                                  <StatusBadge days={daysLeft} lang={lang} />
+                                </td>
+                                <td className="p-4 text-center">
+                                  <button
+                                    onClick={() =>
+                                      handleOpenAIDrawer(
+                                        `Gestionar expediente KHDA para ${doc.employeeName} (${doc.type})`
+                                      )
+                                    }
+                                    className="px-3 py-1 rounded-lg bg-indigo-600 text-white font-bold text-[11px] shadow-sm hover:bg-indigo-700 transition-colors"
+                                  >
+                                    Auditar con Copilot IA
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tab 3: Early Warning Alerts */}
             {currentTab === 'alerts' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-4">
@@ -686,26 +856,116 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 3: 37 Campuses Matrix */}
+            {/* Tab 4: 37 Campuses Matrix */}
             {currentTab === 'campuses' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {DUBAI_CAMPUSES.filter((c) => c !== 'All 37 Dubai Campuses').map((campusName, idx) => (
-                  <div key={campusName} className="glass-card p-5 rounded-2xl space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 font-bold text-sm">
-                        #{idx + 1}
-                      </div>
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
-                        Auditoría 98%
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">{campusName}</h4>
-                    <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-200/50 dark:border-slate-700/50 pt-2">
-                      <span>42 Personal Activo</span>
-                      <span className="text-indigo-500 font-semibold">0 Multas</span>
-                    </div>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
+                      Red de 37 Campus Escolares en Dubái
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Supervisión en tiempo real de cumplimiento KHDA, riesgo de multas y docentes activos
+                    </p>
                   </div>
-                ))}
+                  <span className="px-3 py-1 bg-indigo-500/10 text-indigo-500 font-bold text-xs rounded-full border border-indigo-500/20">
+                    37 Campus Activos
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {DUBAI_CAMPUSES.filter((c) => c !== 'All 37 Dubai Campuses').map((campusName, idx) => (
+                    <div key={campusName} className="glass-card p-5 rounded-2xl space-y-3 hover:border-indigo-500/40 transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 font-bold text-sm">
+                          #{idx + 1}
+                        </div>
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                          KHDA: Outstanding (98.4%)
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-sm text-slate-900 dark:text-white">{campusName}</h4>
+                      <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-200/50 dark:border-slate-700/50 pt-2">
+                        <span>42 Personal Docente</span>
+                        <span className="text-emerald-500 font-bold">0 Multas</span>
+                      </div>
+                      <button
+                        onClick={() => handleOpenAIDrawer(`Generar auditoría completa KHDA para el ${campusName}`)}
+                        className="w-full py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-xs transition-colors"
+                      >
+                        Auditar Campus con IA
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tab 5: Docentes & Personal */}
+            {currentTab === 'staff' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="glass-card p-4 rounded-2xl border border-indigo-500/20">
+                    <p className="text-xs font-semibold text-slate-400">Total Docentes & Personal</p>
+                    <h4 className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">428 Docentes</h4>
+                    <p className="text-[11px] text-emerald-500 mt-1">✓ Registrados en 37 Campus</p>
+                  </div>
+                  <div className="glass-card p-4 rounded-2xl border border-emerald-500/20">
+                    <p className="text-xs font-semibold text-slate-400">Índice Aprobación KHDA</p>
+                    <h4 className="text-2xl font-extrabold text-emerald-500 mt-1">97.8%</h4>
+                    <p className="text-[11px] text-slate-400 mt-1">Permisos de Enseñanza Aprobados</p>
+                  </div>
+                  <div className="glass-card p-4 rounded-2xl border border-amber-500/20">
+                    <p className="text-xs font-semibold text-slate-400">Renovaciones Requeridas</p>
+                    <h4 className="text-2xl font-extrabold text-amber-500 mt-1">9 Docentes</h4>
+                    <p className="text-[11px] text-amber-400 mt-1">⚠️ Notificaciones IA Enviadas</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredEmployees.map((emp, idx) => (
+                    <div key={emp.id} className="glass-card p-5 rounded-2xl space-y-4 hover:border-indigo-500/40 transition-all">
+                      <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-extrabold text-base shadow-md">
+                          {emp.name.charAt(0)}
+                        </div>
+                        <div className="truncate flex-1">
+                          <h4 className="font-extrabold text-sm text-slate-900 dark:text-white truncate">{emp.name}</h4>
+                          <p className="text-xs text-indigo-500 font-semibold truncate">{emp.role}</p>
+                          <p className="text-[11px] text-slate-400 truncate">{emp.campus}</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3">
+                        <p className="text-[11px] font-extrabold uppercase text-slate-400">Documentos KHDA Registrados:</p>
+                        {emp.documents.map((doc) => {
+                          const daysLeft = getDaysRemaining(doc.expiryDate);
+                          return (
+                            <div key={doc.id} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-100/60 dark:bg-slate-800/60">
+                              <span className="font-semibold text-slate-700 dark:text-slate-300">{doc.type}</span>
+                              <StatusBadge days={daysLeft} lang={lang} />
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="pt-2 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-800">
+                        <button
+                          onClick={() => handleOpenAIDrawer(`Revisar expediente docente KHDA de ${emp.name}`)}
+                          className="flex-1 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-all text-center"
+                        >
+                          Expediente IA
+                        </button>
+                        <button
+                          onClick={() => setIsUploadModalOpen(true)}
+                          className="py-1.5 px-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all"
+                        >
+                          Subir OCR
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

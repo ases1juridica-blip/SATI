@@ -11,7 +11,8 @@ import {
   UserGroupIcon, 
   ActivityIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  CloseIcon
 } from './Icons';
 
 interface SidebarProps {
@@ -38,6 +39,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
   alertCount
 }) => {
   const isRtl = lang === Language.AR;
+
+  const handleNavClick = (tabId: string) => {
+    setCurrentTab(tabId);
+    if (window.innerWidth < 768) {
+      setIsCollapsed(true);
+    }
+  };
+
+  const handleUploadClick = () => {
+    onOpenUpload();
+    if (window.innerWidth < 768) {
+      setIsCollapsed(true);
+    }
+  };
+
+  const handleAICopilotClick = () => {
+    onToggleAIDrawer();
+    if (window.innerWidth < 768) {
+      setIsCollapsed(true);
+    }
+  };
 
   const menuItems = [
     {
@@ -112,13 +134,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden md:block"
-          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+          title={isCollapsed ? "Expand Sidebar" : "Close Sidebar"}
         >
           {isCollapsed ? (
             isRtl ? <ChevronLeftIcon className="w-5 h-5" /> : <ChevronRightIcon className="w-5 h-5" />
           ) : (
-            isRtl ? <ChevronRightIcon className="w-5 h-5" /> : <ChevronLeftIcon className="w-5 h-5" />
+            <>
+              <CloseIcon className="w-5 h-5 md:hidden" />
+              <span className="hidden md:inline-flex">
+                {isRtl ? <ChevronRightIcon className="w-5 h-5" /> : <ChevronLeftIcon className="w-5 h-5" />}
+              </span>
+            </>
           )}
         </button>
       </div>
@@ -141,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               return (
                 <button
                   key={item.id}
-                  onClick={() => setCurrentTab(item.id)}
+                  onClick={() => handleNavClick(item.id)}
                   className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-3'} py-2.5 rounded-xl font-medium text-sm transition-all duration-200 relative group ${
                     isActive
                       ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/25'
@@ -177,7 +204,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
           <div className="space-y-1.5">
             <button
-              onClick={onOpenUpload}
+              onClick={handleUploadClick}
               className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 shadow-md shadow-purple-500/20 transition-all transform hover:-translate-y-0.5`}
               title={isCollapsed ? "Escáner OCR IA" : undefined}
             >
@@ -190,7 +217,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
 
             <button
-              onClick={onToggleAIDrawer}
+              onClick={handleAICopilotClick}
               className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 rounded-xl font-medium text-sm border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500/10 transition-all`}
               title={isCollapsed ? "Copilot Asistente KHDA" : undefined}
             >
@@ -255,3 +282,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </aside>
   );
 };
+
