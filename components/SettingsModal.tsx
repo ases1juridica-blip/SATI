@@ -94,7 +94,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, schedul
             <div key={docType} className="p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
               <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">{`${t.documentTypeSettings} ${docType}`}</h3>
               <div className="space-y-4">
-                {rules.map(rule => (
+                {(rules as any[]).map(rule => (
                   <div key={rule.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 relative">
                     <button onClick={() => handleDeleteRule(docType, rule.id)} className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500" title={t.deleteRule}><TrashIcon className="h-5 w-5"/></button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

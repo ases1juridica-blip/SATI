@@ -177,6 +177,8 @@ const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [processedDoc, setProcessedDoc] = useState<ExtractedDocumentInfo | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const t = translations[lang];
 
@@ -244,6 +246,14 @@ const App: React.FC = () => {
         return [...prevEmployees, newEmployee];
       }
     });
+
+    // Display confirmation toast & trigger Gemini AI Live assistant
+    setToastMessage(`Documento ${info.documentType} de ${info.employeeName} registrado con éxito.`);
+    setTimeout(() => setToastMessage(null), 6000);
+
+    setProcessedDoc(info);
+    setIsAIDrawerOpen(true);
+    setCurrentTab('dashboard');
   };
 
   const alerts: Alert[] = useMemo(() => {
@@ -696,6 +706,19 @@ const App: React.FC = () => {
         </main>
       </div>
 
+      {/* Toast Notification for Document Upload */}
+      {toastMessage && (
+        <div className="fixed top-20 right-6 rtl:left-6 rtl:right-auto z-50 animate-bounce bg-slate-900/95 text-white border border-indigo-500/40 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3">
+          <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
+            <CheckCircleIcon className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs font-extrabold text-slate-100">SATI AI OCR Confirmación</p>
+            <p className="text-xs text-indigo-300 font-semibold">{toastMessage}</p>
+          </div>
+        </div>
+      )}
+
       {/* Floating Action Trigger for AI Document Upload */}
       <button
         onClick={() => setIsUploadModalOpen(true)}
@@ -716,9 +739,14 @@ const App: React.FC = () => {
 
       <AIAssistantDrawer
         isOpen={isAIDrawerOpen}
-        onClose={() => setIsAIDrawerOpen(false)}
+        onClose={() => {
+          setIsAIDrawerOpen(false);
+          setProcessedDoc(null);
+          setAiDrawerQuery(undefined);
+        }}
         lang={lang}
         initialQuery={aiDrawerQuery}
+        processedDoc={processedDoc}
         onOpenUpload={() => {
           setIsAIDrawerOpen(false);
           setIsUploadModalOpen(true);
