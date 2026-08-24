@@ -208,6 +208,10 @@ const App: React.FC = () => {
   }, [employees, selectedCampus, searchTerm]);
 
   const handleDocumentProcessed = (info: ExtractedDocumentInfo) => {
+    const assignedCampus =
+      info.campus ||
+      (selectedCampus !== 'All 37 Dubai Campuses' ? selectedCampus : 'Campus 01 - Dubai Marina');
+
     setEmployees((prevEmployees) => {
       const newDocument: Document = {
         id: `doc-${Date.now()}`,
@@ -229,6 +233,7 @@ const App: React.FC = () => {
         if (!docExists) {
           updatedEmployees[employeeIndex] = {
             ...existingEmployee,
+            campus: assignedCampus,
             documents: [...existingEmployee.documents, newDocument],
           };
         }
@@ -237,9 +242,7 @@ const App: React.FC = () => {
         const newEmployee: Employee = {
           id: `emp-${Date.now()}`,
           name: info.employeeName,
-          campus:
-            info.campus ||
-            (selectedCampus !== 'All 37 Dubai Campuses' ? selectedCampus : 'Campus 01 - Dubai Marina'),
+          campus: assignedCampus,
           role: 'Teacher',
           documents: [newDocument],
         };
@@ -248,10 +251,13 @@ const App: React.FC = () => {
     });
 
     // Display confirmation toast & trigger Gemini AI Live assistant
-    setToastMessage(`Documento ${info.documentType} de ${info.employeeName} registrado con éxito.`);
+    setToastMessage(`Documento ${info.documentType} de ${info.employeeName} asignado a ${assignedCampus}.`);
     setTimeout(() => setToastMessage(null), 6000);
 
-    setProcessedDoc(info);
+    setProcessedDoc({
+      ...info,
+      campus: assignedCampus,
+    });
     setIsAIDrawerOpen(true);
     setCurrentTab('dashboard');
   };
@@ -735,6 +741,8 @@ const App: React.FC = () => {
         onClose={() => setIsUploadModalOpen(false)}
         onDocumentProcessed={handleDocumentProcessed}
         lang={lang}
+        campuses={DUBAI_CAMPUSES}
+        currentCampus={selectedCampus}
       />
 
       <AIAssistantDrawer
