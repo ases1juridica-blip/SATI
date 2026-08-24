@@ -1,24 +1,31 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Intelligent Early Warning System (SATI)</title>
+    <title>SATI AI • Sistema de Alerta Temprana & Cumplimiento KHDA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/cropped-cropped-LOGO-32x32.png" />
+    <link rel="shortcut icon" type="image/png" href="assets/cropped-cropped-LOGO-32x32.png" />
+    <link rel="apple-touch-icon" href="assets/cropped-cropped-LOGO-32x32.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
-  <body class="bg-gray-100 dark:bg-gray-900">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
+    <link rel="stylesheet" href="/index.css">
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-950 antialiased selection:bg-indigo-500 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
