@@ -58,6 +58,11 @@ const createInitialData = (): Employee[] => {
       name: 'Sarah Jenkins (Math Teacher)',
       campus: 'Campus 01 - Dubai Marina',
       role: 'Teacher',
+      email: 'sarah.jenkins@sati-schools.ae',
+      phone: '+971 50 842 1993',
+      telegram: '@sjenkins_dubai',
+      discord: 'sarah.j#4421',
+      preferredChannels: ['Email', 'WhatsApp', 'Telegram'],
       documents: [
         { id: 'doc-1-1', type: DocumentType.KHDAPermit, expiryDate: addDays(today, 12) },
         { id: 'doc-1-2', type: DocumentType.Visa, expiryDate: addDays(today, 25) },
@@ -69,6 +74,9 @@ const createInitialData = (): Employee[] => {
       name: 'Tariq Al-Mansoor (Physics Lead)',
       campus: 'Campus 02 - Al Barsha',
       role: 'Teacher',
+      email: 'tariq.mansoor@sati-schools.ae',
+      phone: '+971 55 918 3201',
+      preferredChannels: ['WhatsApp', 'Automated Call', 'SMS'],
       documents: [
         { id: 'doc-2-1', type: DocumentType.EmiratesID, expiryDate: addDays(today, 88) },
         { id: 'doc-2-2', type: DocumentType.MedicalFitness, expiryDate: addDays(today, 6) },
@@ -79,6 +87,11 @@ const createInitialData = (): Employee[] => {
       name: 'Elena Rostova (Primary Head)',
       campus: 'Campus 03 - Jumeirah',
       role: 'Administrator',
+      email: 'elena.rostova@sati-schools.ae',
+      phone: '+971 58 630 1148',
+      telegram: '@elena_rostova',
+      discord: 'elena.r#9122',
+      preferredChannels: ['Discord', 'Telegram', 'Email', 'Automated Call'],
       documents: [
         { id: 'doc-3-1', type: DocumentType.WorkPermit, expiryDate: addDays(today, 5) },
         { id: 'doc-3-2', type: DocumentType.AttestedDegree, expiryDate: addDays(today, 360) },
@@ -89,6 +102,9 @@ const createInitialData = (): Employee[] => {
       name: 'David Miller (STEM Specialist)',
       campus: 'Campus 04 - Silicon Oasis',
       role: 'Teacher',
+      email: 'david.miller@sati-schools.ae',
+      phone: '+971 54 220 8831',
+      preferredChannels: ['Email', 'SMS', 'Calendar Task'],
       documents: [
         { id: 'doc-4-1', type: DocumentType.HealthInsurance, expiryDate: addDays(today, 45) },
         { id: 'doc-4-2', type: DocumentType.KHDAPermit, expiryDate: addDays(today, 90) },
@@ -99,6 +115,10 @@ const createInitialData = (): Employee[] => {
       name: 'Fatima Al-Zahra (Arabic Language Coordinator)',
       campus: 'Campus 06 - Downtown Dubai',
       role: 'Teacher',
+      email: 'fatima.alzahra@sati-schools.ae',
+      phone: '+971 52 334 7712',
+      telegram: '@fatima_z',
+      preferredChannels: ['WhatsApp', 'Telegram', 'Email'],
       documents: [
         { id: 'doc-5-1', type: DocumentType.KHDAPermit, expiryDate: addDays(today, 210) },
         { id: 'doc-5-2', type: DocumentType.Visa, expiryDate: addDays(today, 14) },
@@ -109,6 +129,10 @@ const createInitialData = (): Employee[] => {
       name: 'Carlos Mendoza (Physical Education)',
       campus: 'Campus 01 - Dubai Marina',
       role: 'Teacher',
+      email: 'carlos.mendoza@sati-schools.ae',
+      phone: '+971 52 761 4039',
+      discord: 'carlos.m#3021',
+      preferredChannels: ['Email', 'Discord', 'WhatsApp'],
       documents: [
         { id: 'doc-6-1', type: DocumentType.EmiratesID, expiryDate: addDays(today, 4) },
         { id: 'doc-6-2', type: DocumentType.MedicalFitness, expiryDate: addDays(today, 120) },
@@ -119,6 +143,9 @@ const createInitialData = (): Employee[] => {
       name: 'Dr. Aisha Al-Hassani (KHDA Audit Director)',
       campus: 'Campus 07 - Academic City',
       role: 'Administrator',
+      email: 'aisha.alhassani@sati-schools.ae',
+      phone: '+971 50 900 1122',
+      preferredChannels: ['Email', 'Automated Call', 'Calendar Task'],
       documents: [
         { id: 'doc-7-1', type: DocumentType.Contract, expiryDate: addDays(today, 240) },
         { id: 'doc-7-2', type: DocumentType.AttestedDegree, expiryDate: addDays(today, 500) },
@@ -129,6 +156,9 @@ const createInitialData = (): Employee[] => {
       name: 'Relocated Student #842 (Fast Intake)',
       campus: 'Campus 05 - Dubai South',
       role: 'Student',
+      email: 'parent.842@sati-schools.ae',
+      phone: '+971 56 441 9090',
+      preferredChannels: ['Email', 'SMS', 'WhatsApp'],
       documents: [
         { id: 'doc-8-1', type: DocumentType.StudentPassport, expiryDate: addDays(today, 300) },
       ]
@@ -202,11 +232,27 @@ const AlertChannelIcon: React.FC<{ channel: string }> = ({ channel }) => {
       </span>
     );
   }
+  if (lower.includes('sms')) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20" title="SMS">
+        <SmsIcon className="h-3.5 w-3.5" />
+        <span>SMS</span>
+      </span>
+    );
+  }
   if (lower.includes('phone') || lower.includes('call') || lower.includes('llamada')) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="Voz / Teléfono">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="Llamada Automática">
         <PhoneIcon className="h-3.5 w-3.5" />
-        <span>Teléfono</span>
+        <span>Llamada</span>
+      </span>
+    );
+  }
+  if (lower.includes('calendar') || lower.includes('calendario') || lower.includes('task')) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20" title="Tarea Calendario">
+        <CalendarIcon className="h-3.5 w-3.5" />
+        <span>Calendario</span>
       </span>
     );
   }
@@ -362,6 +408,10 @@ const App: React.FC = () => {
 
         for (const rule of allRules) {
           if (daysRemaining <= rule.days) {
+            const userChannels = (employee.preferredChannels && employee.preferredChannels.length > 0)
+              ? employee.preferredChannels
+              : rule.channels;
+
             generatedAlerts.push({
               employee,
               document: doc,
@@ -369,7 +419,7 @@ const App: React.FC = () => {
               level: rule.level,
               message: rule.message,
               recipients: rule.recipients,
-              channels: rule.channels,
+              channels: userChannels,
             });
             return;
           }
@@ -379,11 +429,34 @@ const App: React.FC = () => {
     return generatedAlerts.sort((a, b) => a.daysRemaining - b.daysRemaining);
   }, [filteredEmployees, alertSchedule]);
 
+  const handleUpdateEmployee = (employeeId: string, updated: Partial<Employee>) => {
+    setEmployees((prev) =>
+      prev.map((emp) => {
+        if (emp.id === employeeId || emp.name.toLowerCase() === updated.name?.toLowerCase()) {
+          return { ...emp, ...updated };
+        }
+        return emp;
+      })
+    );
+    setToastMessage(t.savedChannelsSuccess || 'Preferencias de canales actualizadas');
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
   const criticalExpirationsCount = useMemo(() => {
     return filteredEmployees
       .flatMap((emp) => emp.documents)
       .filter((doc) => getDaysRemaining(doc.expiryDate) <= 30).length;
   }, [filteredEmployees]);
+
+  const availableSystemChannels = useMemo(() => {
+    const channelsSet = new Set<string>();
+    Object.values(alertSchedule).forEach((rules) => {
+      rules.forEach((r) => {
+        r.channels.forEach((ch) => channelsSet.add(ch));
+      });
+    });
+    return channelsSet.size > 0 ? Array.from(channelsSet) : undefined;
+  }, [alertSchedule]);
 
   const handleSaveSettings = (newSchedule: AlertSchedule) => {
     setAlertSchedule(newSchedule);
@@ -689,6 +762,7 @@ const App: React.FC = () => {
                                 <button
                                   onClick={() =>
                                     handleOpenDetailModal({
+                                      employeeId: doc.employeeId,
                                       employeeName: doc.employeeName,
                                       campus: doc.campus,
                                       documentType: doc.type,
@@ -827,6 +901,7 @@ const App: React.FC = () => {
                                   <button
                                     onClick={() =>
                                       handleOpenDetailModal({
+                                        employeeId: doc.employeeId,
                                         employeeName: doc.employeeName,
                                         campus: doc.campus,
                                         documentType: doc.type,
@@ -1049,6 +1124,7 @@ const App: React.FC = () => {
                         <button
                           onClick={() =>
                             handleOpenDetailModal({
+                              employeeId: emp.id,
                               employeeName: emp.name,
                               campus: emp.campus,
                               role: emp.role,
@@ -1142,9 +1218,12 @@ const App: React.FC = () => {
           setSelectedDocDetail(null);
         }}
         docDetail={selectedDocDetail}
+        employee={employees.find(e => e.id === selectedDocDetail?.employeeId || e.name === selectedDocDetail?.employeeName)}
+        availableChannels={availableSystemChannels}
         lang={lang}
         onAskAI={(query) => handleOpenAIDrawer(query)}
         onOpenUpload={() => setIsUploadModalOpen(true)}
+        onUpdateEmployee={handleUpdateEmployee}
       />
 
       <NotificationDraftModal

@@ -8,13 +8,14 @@ import {
   WhatsAppIcon, 
   TelegramIcon, 
   DiscordIcon, 
+  SmsIcon,
   SparklesIcon, 
   CheckCircleIcon,
   BotIcon
 } from './Icons';
 import { askGeminiAssistant } from '../services/geminiService';
 
-export type NotificationChannel = 'email' | 'phone' | 'whatsapp' | 'telegram' | 'discord';
+export type NotificationChannel = 'email' | 'phone' | 'whatsapp' | 'telegram' | 'discord' | 'sms';
 
 export interface NotificationDraftData {
   alertId?: string;
@@ -56,7 +57,8 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
       if (firstChannel.includes('whatsapp')) setSelectedChannel('whatsapp');
       else if (firstChannel.includes('telegram')) setSelectedChannel('telegram');
       else if (firstChannel.includes('discord')) setSelectedChannel('discord');
-      else if (firstChannel.includes('phone') || firstChannel.includes('call') || firstChannel.includes('sms')) setSelectedChannel('phone');
+      else if (firstChannel.includes('sms')) setSelectedChannel('sms');
+      else if (firstChannel.includes('phone') || firstChannel.includes('call')) setSelectedChannel('phone');
       else setSelectedChannel('email');
 
       setMessage(alertData.originalMessage || '');
@@ -130,7 +132,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
     },
     phone: {
       icon: <PhoneIcon className="w-5 h-5" />,
-      label: t.automatedCall || 'Phone / Voice',
+      label: t.automatedCall || 'Llamada Automática',
       bg: 'bg-amber-500/10 dark:bg-amber-900/30',
       border: 'border-amber-500/30',
       text: 'text-amber-600 dark:text-amber-400',
@@ -155,6 +157,13 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
       bg: 'bg-indigo-500/10 dark:bg-indigo-900/30',
       border: 'border-indigo-500/30',
       text: 'text-indigo-600 dark:text-indigo-400',
+    },
+    sms: {
+      icon: <SmsIcon className="w-5 h-5" />,
+      label: 'SMS',
+      bg: 'bg-purple-500/10 dark:bg-purple-900/30',
+      border: 'border-purple-500/30',
+      text: 'text-purple-600 dark:text-purple-400',
     },
   };
 
@@ -189,7 +198,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
               {t.sentChannelLabel}
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
               {(Object.keys(channelIcons) as NotificationChannel[]).map((ch) => {
                 const info = channelIcons[ch];
                 const isSelected = selectedChannel === ch;

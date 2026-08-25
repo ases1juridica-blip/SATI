@@ -29,6 +29,11 @@ export interface Employee {
   campus: string;
   role: 'Teacher' | 'Administrator' | 'Staff' | 'Student';
   documents: Document[];
+  email?: string;
+  phone?: string;
+  telegram?: string;
+  discord?: string;
+  preferredChannels?: string[];
 }
 
 export type ExtractedDocumentInfo = {

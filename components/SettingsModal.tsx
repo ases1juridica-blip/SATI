@@ -1,7 +1,19 @@
 import React, { useState, useEffect, FC } from 'react';
 import { AlertSchedule, AlertRule, AlertLevel, Language } from '../types';
-import { translations } from '../constants';
-import { PlusIcon, TrashIcon, SparklesIcon, CheckCircleIcon } from './Icons';
+import { translations, ALL_NOTIFICATION_CHANNELS } from '../constants';
+import { 
+  PlusIcon, 
+  TrashIcon, 
+  SparklesIcon, 
+  CheckCircleIcon,
+  EmailIcon,
+  PhoneIcon,
+  WhatsAppIcon,
+  TelegramIcon,
+  DiscordIcon,
+  SmsIcon,
+  CalendarIcon
+} from './Icons';
 import { getStoredApiKey, saveCustomApiKey, removeCustomApiKey, checkGeminiConnection } from '../services/geminiService';
 
 interface SettingsModalProps {
@@ -12,7 +24,15 @@ interface SettingsModalProps {
   lang: Language;
 }
 
-const allChannels = ['Email', 'SMS', 'Automated Call', 'Calendar Task'];
+const channelIconMap: Record<string, React.ReactNode> = {
+  'Email': <EmailIcon className="w-3.5 h-3.5 text-blue-500" />,
+  'Automated Call': <PhoneIcon className="w-3.5 h-3.5 text-amber-500" />,
+  'WhatsApp': <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-500" />,
+  'Telegram': <TelegramIcon className="w-3.5 h-3.5 text-sky-500" />,
+  'Discord': <DiscordIcon className="w-3.5 h-3.5 text-indigo-500" />,
+  'SMS': <SmsIcon className="w-3.5 h-3.5 text-purple-500" />,
+  'Calendar Task': <CalendarIcon className="w-3.5 h-3.5 text-teal-500" />
+};
 
 export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, schedule, onSave, lang }) => {
   const [editableSchedule, setEditableSchedule] = useState<AlertSchedule>(schedule);
@@ -188,14 +208,24 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, schedul
                         <input type="text" value={rule.recipients.join(', ')} onChange={e => handleRuleChange(docType, rule.id, 'recipients', e.target.value)} className="mt-1 block w-full rounded-xl border border-slate-300 dark:border-slate-700 p-2 text-xs dark:bg-slate-800 dark:text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">{t.notificationChannels}</label>
-                        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
-                            {allChannels.map(channel => (
-                                <label key={channel} className="inline-flex items-center">
-                                    <input type="checkbox" checked={rule.channels.some(c => c.toLowerCase().includes(channel.split(' ')[0].toLowerCase()))} onChange={e => handleChannelChange(docType, rule.id, channel, e.target.checked)} className="rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:bg-slate-800 dark:border-slate-700"/>
-                                    <span className="ml-2 rtl:ml-0 rtl:mr-2 text-xs text-slate-600 dark:text-slate-400 font-semibold">{t[channel.replace(/\s/g, '').toLowerCase() as keyof typeof t] || channel}</span>
+                        <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">{t.notificationChannels}</label>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                            {ALL_NOTIFICATION_CHANNELS.map(channel => {
+                              const isChecked = rule.channels.some(c => c.toLowerCase().includes(channel.split(' ')[0].toLowerCase()));
+                              return (
+                                <label key={channel} className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                                  isChecked
+                                    ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-600 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                                    : 'bg-slate-100/70 dark:bg-slate-850 border-slate-200 dark:border-slate-700/60 text-slate-500 dark:text-slate-400'
+                                }`}>
+                                    <input type="checkbox" checked={isChecked} onChange={e => handleChannelChange(docType, rule.id, channel, e.target.checked)} className="rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:bg-slate-800 dark:border-slate-700 h-3.5 w-3.5"/>
+                                    <span className="flex items-center gap-1">
+                                      {channelIconMap[channel]}
+                                      <span>{t[channel.replace(/\s/g, '').toLowerCase() as keyof typeof t] || channel}</span>
+                                    </span>
                                 </label>
-                            ))}
+                              );
+                            })}
                         </div>
                       </div>
                     </div>
