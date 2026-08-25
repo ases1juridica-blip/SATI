@@ -446,14 +446,16 @@ const App: React.FC = () => {
         />
 
         <main className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-8">
-          {/* AIPromptHero Banner */}
-          <AIPromptHero
-            lang={lang}
-            onOpenUpload={() => setIsUploadModalOpen(true)}
-            onSelectTab={(tab) => setCurrentTab(tab)}
-            onToggleAIDrawer={handleOpenAIDrawer}
-            criticalAlertCount={criticalExpirationsCount}
-          />
+          {/* AIPromptHero Banner - Only visible on main Dashboard Panel */}
+          {currentTab === 'dashboard' && (
+            <AIPromptHero
+              lang={lang}
+              onOpenUpload={() => setIsUploadModalOpen(true)}
+              onSelectTab={(tab) => setCurrentTab(tab)}
+              onToggleAIDrawer={handleOpenAIDrawer}
+              criticalAlertCount={criticalExpirationsCount}
+            />
+          )}
 
           {/* Executive Stats: Full Cards on Dashboard, Stock Ticker on Other Tabs */}
           {currentTab === 'dashboard' ? (
