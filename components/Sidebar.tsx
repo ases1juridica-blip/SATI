@@ -1,5 +1,6 @@
 import React from 'react';
 import { Language } from '../types';
+import { translations } from '../constants';
 import { 
   BotIcon, 
   ShieldCheckIcon, 
@@ -38,6 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleAIDrawer,
   alertCount
 }) => {
+  const t = translations[lang];
   const isRtl = lang === Language.AR;
 
   const handleNavClick = (tabId: string) => {
@@ -64,41 +66,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const menuItems = [
     {
       id: 'dashboard',
-      labelEs: 'Panel Principal',
-      labelEn: 'Dashboard',
-      labelAr: 'لوحة التحكم',
+      label: t.dashboard,
       icon: ActivityIcon,
       badge: null
     },
     {
       id: 'documents',
-      labelEs: 'Matriz Documental KHDA',
-      labelEn: 'KHDA Documents Matrix',
-      labelAr: 'مصفوفة الوثائق',
+      label: lang === Language.ES ? 'Matriz Documental KHDA' : lang === Language.AR ? 'مصفوفة الوثائق' : 'KHDA Documents Matrix',
       icon: FileTextIcon,
       badge: null
     },
     {
       id: 'alerts',
-      labelEs: 'Centro de Alertas',
-      labelEn: 'Early Warning Center',
-      labelAr: 'مركز التنبيهات',
+      label: lang === Language.ES ? 'Centro de Alertas' : lang === Language.AR ? 'مركز التنبيهات' : 'Early Warning Center',
       icon: AlertTriangleIcon,
       badge: alertCount > 0 ? alertCount : null
     },
     {
       id: 'campuses',
-      labelEs: 'Matriz 37 Campus Dubái',
-      labelEn: 'Dubai 37 Campuses',
-      labelAr: 'مجمعات دبي الـ 37',
+      label: lang === Language.ES ? 'Matriz 37 Campus Dubái' : lang === Language.AR ? 'مجمعات دبي الـ 37' : 'Dubai 37 Campuses',
       icon: SchoolIcon,
       badge: '37'
     },
     {
       id: 'staff',
-      labelEs: 'Docentes & Personal',
-      labelEn: 'Teachers & Staff',
-      labelAr: 'المعلمون والكادر',
+      label: lang === Language.ES ? 'Docentes & Personal' : lang === Language.AR ? 'المعلمون والكادر' : 'Teachers & Staff',
       icon: UserGroupIcon,
       badge: null
     }
@@ -121,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center space-x-3 rtl:space-x-reverse overflow-hidden">
           <div className="md:hidden flex items-center space-x-2 rtl:space-x-reverse">
             <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200">
-              {lang === Language.ES ? 'Navegación SATI' : lang === Language.AR ? 'التصفح الرئيسي' : 'SATI Navigation'}
+              SATI {t.navigation}
             </span>
           </div>
           <div className="hidden md:flex items-center space-x-2.5 rtl:space-x-reverse">
@@ -169,14 +161,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           {!isCollapsed && (
             <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-              {lang === Language.ES ? 'Navegación' : lang === Language.AR ? 'التصفح الرئيسي' : 'Navigation'}
+              {t.navigation}
             </p>
           )}
           <nav className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
-              const label = lang === Language.ES ? item.labelEs : lang === Language.AR ? item.labelAr : item.labelEn;
+              const label = item.label;
 
               return (
                 <button
@@ -212,19 +204,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           {!isCollapsed && (
             <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-              {lang === Language.ES ? 'Acciones Inteligentes' : lang === Language.AR ? 'أدوات الذكاء الاصطناعي' : 'AI Quick Actions'}
+              {t.aiQuickActions}
             </p>
           )}
           <div className="space-y-1.5">
             <button
               onClick={handleUploadClick}
               className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 shadow-md shadow-purple-500/20 transition-all transform hover:-translate-y-0.5`}
-              title={isCollapsed ? "Escáner OCR IA" : undefined}
+              title={isCollapsed ? t.aiDocScan : undefined}
             >
               <SparklesIcon className="w-5 h-5 flex-shrink-0" />
               {!isCollapsed && (
                 <span className="ml-3 rtl:mr-3 rtl:ml-0 truncate">
-                  {lang === Language.ES ? 'Escáner OCR IA' : lang === Language.AR ? 'مسح الوثائق بالذكاء الاصطناعي' : 'AI Document Scan'}
+                  {t.aiDocScan}
                 </span>
               )}
             </button>
@@ -232,12 +224,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={handleAICopilotClick}
               className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 rounded-xl font-medium text-sm border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500/10 transition-all`}
-              title={isCollapsed ? "Copilot Asistente KHDA" : undefined}
+              title={isCollapsed ? t.satiCopilot : undefined}
             >
               <BotIcon className="w-5 h-5 flex-shrink-0 text-indigo-500" />
               {!isCollapsed && (
                 <span className="ml-3 rtl:mr-3 rtl:ml-0 truncate">
-                  {lang === Language.ES ? 'Asistente SATI Copilot' : lang === Language.AR ? 'مساعد SATI الذكي' : 'SATI Copilot'}
+                  {t.satiCopilot}
                 </span>
               )}
             </button>
@@ -250,12 +242,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           onClick={onOpenSettings}
           className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors`}
-          title={isCollapsed ? "Configurar Alertas" : undefined}
+          title={isCollapsed ? t.alertRules : undefined}
         >
           <SettingsIcon className="w-5 h-5 flex-shrink-0 text-slate-500" />
           {!isCollapsed && (
             <span className="ml-3 rtl:mr-3 rtl:ml-0 truncate">
-              {lang === Language.ES ? 'Reglas de Alerta' : lang === Language.AR ? 'إعدادات القواعد' : 'Alert Rules'}
+              {t.alertRules}
             </span>
           )}
         </button>

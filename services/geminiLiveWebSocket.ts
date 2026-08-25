@@ -27,7 +27,9 @@ export class GeminiLiveWebSocket {
     }
   }
 
-  public connect(apiKey: string, systemInstruction: string = 'You are SATI AI Copilot for Dubai school compliance.'): Promise<boolean> {
+  private activeSystemInstruction: string = '';
+
+  public connect(apiKey: string, systemInstruction: string = 'You are SATI AI Copilot for Dubai school compliance.', forceReconnect: boolean = false): Promise<boolean> {
     return new Promise((resolve) => {
       if (!apiKey) {
         this.setStatus('error');
@@ -35,11 +37,17 @@ export class GeminiLiveWebSocket {
         return resolve(false);
       }
 
+      const instructionChanged = this.activeSystemInstruction !== systemInstruction;
+      if (forceReconnect || (instructionChanged && this.ws)) {
+        this.disconnect();
+      }
+
       if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
         if (this.ws.readyState === WebSocket.OPEN) this.setStatus('connected');
         return resolve(true);
       }
 
+      this.activeSystemInstruction = systemInstruction;
       this.setStatus('connecting');
       const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`;
 

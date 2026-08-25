@@ -93,7 +93,7 @@ export const DocumentUpload: FC<DocumentUploadProps> = ({
             campus: extractedInfo.campus || finalCampus,
           }
         : {
-            employeeName: file.name ? file.name.replace(/\.[^/.]+$/, "") : "Docente / Personal Nuevo",
+            employeeName: file.name ? file.name.replace(/\.[^/.]+$/, "") : t.scannedTeacher,
             documentType: "Visa",
             expiryDate: new Date(Date.now() + 45 * 86400000).toISOString().split('T')[0],
             campus: finalCampus,
@@ -106,7 +106,7 @@ export const DocumentUpload: FC<DocumentUploadProps> = ({
       // Fallback simulation so user flow never breaks
       const fallbackCampus = selectedCampusForDoc || 'Campus 01 - Dubai Marina';
       onDocumentProcessed({
-        employeeName: file.name ? file.name.replace(/\.[^/.]+$/, "") : "Docente Escaneado",
+        employeeName: file.name ? file.name.replace(/\.[^/.]+$/, "") : t.scannedTeacher,
         documentType: "Visa",
         expiryDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
         campus: fallbackCampus,
@@ -138,7 +138,7 @@ export const DocumentUpload: FC<DocumentUploadProps> = ({
             </div>
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">{t.uploadDocument}</h2>
-              <p className="text-xs text-indigo-300 font-medium">Google Gemini AI OCR & Asignación a Campus</p>
+              <p className="text-xs text-indigo-300 font-medium">{t.ocrSubtitle}</p>
             </div>
           </div>
           <button
@@ -154,7 +154,7 @@ export const DocumentUpload: FC<DocumentUploadProps> = ({
           {/* Campus Selector */}
           <div>
             <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-              🏫 Asignar a Campus Dubái:
+              {t.assignCampus}
             </label>
             <select
               value={selectedCampusForDoc}
@@ -195,7 +195,7 @@ export const DocumentUpload: FC<DocumentUploadProps> = ({
                 </div>
                 <div className="text-slate-600 dark:text-slate-300">
                   <p className="font-bold text-sm">{t.dropFileHere}</p>
-                  <p className="text-xs text-slate-400 mt-1">Soporta Visa, Emirates ID, Permiso KHDA, Aptitud Médica (JPEG, PNG, WEBP)</p>
+                  <p className="text-xs text-slate-400 mt-1">{t.supportedFormats}</p>
                 </div>
               </div>
             )}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Language, ExtractedDocumentInfo } from '../types';
+import { translations } from '../constants';
 import { BotIcon, CloseIcon, SparklesIcon, FileTextIcon, ShieldCheckIcon, CheckCircleIcon } from './Icons';
 import { askGeminiAssistant, checkGeminiConnection } from '../services/geminiService';
 import { GeminiLiveWebSocket, ConnectionStatus } from '../services/geminiLiveWebSocket';
@@ -48,6 +49,8 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
   processedDoc,
   onOpenUpload
 }) => {
+  const t = translations[lang];
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -129,10 +132,11 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
         }
       });
 
-      const systemPrompt = `CRITICAL MANDATE: You MUST answer ALL responses strictly and ONLY in ${langName}. Do NOT use any other language under any circumstance.
+      const systemPrompt = `CRITICAL MANDATE: You MUST answer ALL responses 100% strictly and ONLY in ${langName}.
+Translate ALL section headers, titles, bullet points, formatting, and body text into ${langName}. Do NOT use any English headings or any other language under any circumstance.
 You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Alerta Temprana y Cumplimiento KHDA) for 37 school campuses in Dubai. Respond in ${langName}.`;
 
-      liveWs.connect(apiKey, systemPrompt);
+      liveWs.connect(apiKey, systemPrompt, true);
       liveWsRef.current = liveWs;
 
       return () => {
@@ -172,7 +176,7 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
     activeAiMsgIdRef.current = null;
 
     const targetLang = lang === Language.AR ? 'Arabic (العربية)' : lang === Language.ES ? 'Spanish (Español)' : 'English';
-    const formattedQuery = `[PLEASE RESPOND STRICTLY IN ${targetLang.toUpperCase()}]: ${queryText}`;
+    const formattedQuery = `[PLEASE RESPOND 100% STRICTLY IN ${targetLang.toUpperCase()} WITH ALL HEADINGS TRANSLATED]: ${queryText}`;
 
     // Try WebSocket Live streaming first
     if (useWebSocketMode && liveWsRef.current && wsStatus === 'connected') {
@@ -222,7 +226,7 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
               </div>
               <div>
                 <h2 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-1.5">
-                  SATI Copilot AI
+                  {t.satiCopilot}
                   {wsStatus === 'connected' ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
@@ -237,9 +241,7 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
                   )}
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {wsStatus === 'connected'
-                    ? 'Conexión WebSocket Bidireccional Activa'
-                    : lang === Language.ES ? 'Conectado con Gemini Live API' : 'Connected with Gemini Live API'}
+                  {wsStatus === 'connected' ? t.wsLiveActive : t.connectedGemini}
                 </p>
               </div>
             </div>
@@ -258,14 +260,14 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
               className="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-medium flex items-center gap-1 flex-shrink-0 shadow-sm hover:bg-indigo-700 transition-all"
             >
               <SparklesIcon className="w-3.5 h-3.5" />
-              <span>{lang === Language.ES ? 'Escanear Documento' : 'Scan Document'}</span>
+              <span>{t.scanDocument}</span>
             </button>
             <button
-              onClick={() => handleSendUserQuery('Generar informe de auditoría KHDA')}
+              onClick={() => handleSendUserQuery(t.khdaReportQuery)}
               className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium flex items-center gap-1 flex-shrink-0 hover:border-indigo-400 transition-all"
             >
               <ShieldCheckIcon className="w-3.5 h-3.5 text-indigo-500" />
-              <span>{lang === Language.ES ? 'Reporte KHDA' : 'KHDA Report'}</span>
+              <span>{t.khdaReport}</span>
             </button>
             <button
               onClick={() => setUseWebSocketMode(!useWebSocketMode)}
@@ -274,7 +276,7 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
                   ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}
-              title="Alternar entre WebSocket Live Stream y HTTP REST"
+              title={t.wsStreamTooltip}
             >
               ⚡ WS Stream
             </button>
@@ -303,7 +305,7 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
             {isTyping && (
               <div className="flex items-center space-x-2 text-indigo-500 text-xs font-semibold p-2">
                 <BotIcon className="w-4 h-4 animate-spin" />
-                <span>{lang === Language.ES ? 'Gemini Live AI transmitiendo en tiempo real...' : 'Gemini Live AI streaming...'}</span>
+                <span>{t.streamingText}</span>
               </div>
             )}
           </div>
@@ -315,7 +317,7 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder={lang === Language.ES ? 'Escribe una pregunta a Gemini Live WebSocket...' : 'Ask Gemini Live via WebSocket...'}
+                placeholder={t.askPlaceholder}
                 className="flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <button
@@ -323,7 +325,7 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
                 disabled={isTyping}
                 className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-sm transition-all shadow-sm"
               >
-                {lang === Language.ES ? 'Enviar' : 'Send'}
+                {t.send}
               </button>
             </div>
           </form>

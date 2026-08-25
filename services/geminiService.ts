@@ -106,7 +106,8 @@ export const askGeminiAssistant = async (
 
     const langName = lang === Language.AR ? 'Arabic (العربية)' : lang === Language.ES ? 'Spanish (Español)' : 'English';
 
-    const systemInstruction = `CRITICAL MANDATE: You MUST answer ALL responses ONLY in ${langName}. Do NOT use any other language.
+    const systemInstruction = `CRITICAL MANDATE: You MUST answer ALL responses 100% strictly and ONLY in ${langName}.
+Translate ALL section headers, markdown titles, bullet points, formatting, and body text into ${langName}. Do NOT output any English headings or mixed language content under any circumstance.
 You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Alerta Temprana y Cumplimiento KHDA) for 37 school campuses in Dubai, United Arab Emirates.
 Your mission is to monitor teacher permits, staff visas, Emirates IDs, medical fitness certificates, KHDA compliance scores, and student transfers.
 Answer queries concisely, professionally, and accurately in ${langName}. Use formatting like bolding, bullet points, and relevant emojis.

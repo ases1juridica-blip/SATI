@@ -469,7 +469,7 @@ const App: React.FC = () => {
               <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
                 <span className="text-3xl font-black text-slate-900 dark:text-white">96.4%</span>
                 <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                  ✓ KHDA Ready
+                  {t.khdaReady}
                 </span>
               </div>
               <div className="mt-3 w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
@@ -491,10 +491,10 @@ const App: React.FC = () => {
                 <span className="text-3xl font-black text-slate-900 dark:text-white">
                   {filteredEmployees.length * 42 + 814}
                 </span>
-                <span className="text-xs font-semibold text-slate-400">en 37 campus</span>
+                <span className="text-xs font-semibold text-slate-400">{t.in37Campuses}</span>
               </div>
               <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Sincronización en tiempo real KHDA
+                {t.realtimeKHDASync}
               </p>
             </div>
 
@@ -513,11 +513,11 @@ const App: React.FC = () => {
                   {criticalExpirationsCount}
                 </span>
                 <span className="text-xs font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full animate-pulse">
-                  Riesgo Multa $0
+                  {t.fineRiskZero}
                 </span>
               </div>
               <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Acción inmediata requerida
+                {t.immediateActionRequired}
               </p>
             </div>
 
@@ -534,11 +534,11 @@ const App: React.FC = () => {
               <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
                 <span className="text-3xl font-black text-slate-900 dark:text-white">142</span>
                 <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                  Ingreso Activo
+                  {t.activeIntake}
                 </span>
               </div>
               <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Módulo de traslados rápido de estudiantes
+                {t.studentTransferModule}
               </p>
             </div>
           </div>
@@ -555,7 +555,7 @@ const App: React.FC = () => {
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {lang === Language.ES ? '📄 Matriz de Documentos' : 'Document Matrix'}
+                  {t.documentMatrixTab}
                 </button>
                 <button
                   onClick={() => setCurrentTab('alerts')}
@@ -565,7 +565,7 @@ const App: React.FC = () => {
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {lang === Language.ES ? '🔔 Centro de Alertas' : 'Alert Center'}
+                  {t.alertCenterTab}
                   {criticalExpirationsCount > 0 && (
                     <span className="ml-2 rtl:mr-2 rtl:ml-0 px-1.5 py-0.5 text-[10px] bg-rose-500 text-white rounded-full font-bold">
                       {criticalExpirationsCount}
@@ -580,7 +580,7 @@ const App: React.FC = () => {
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  {lang === Language.ES ? '🏫 37 Campus Dubái' : '37 Campuses'}
+                  {t.campuses37Tab}
                 </button>
               </div>
 
@@ -592,7 +592,7 @@ const App: React.FC = () => {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder={lang === Language.ES ? 'Filtrar docentes o visas...' : 'Filter staff or visas...'}
+                    placeholder={t.filterStaffOrVisas}
                     className="w-full pl-9 rtl:pr-9 rtl:pl-3 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
@@ -613,7 +613,7 @@ const App: React.FC = () => {
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900 dark:text-white">{t.dashboard}</h3>
                     <p className="text-xs text-slate-400">
-                      {filteredEmployees.flatMap((e) => e.documents).length} registros de cumplimiento KHDA en tiempo real
+                      {filteredEmployees.flatMap((e) => e.documents).length} {t.realtimeRecords}
                     </p>
                   </div>
                   <button
@@ -634,7 +634,7 @@ const App: React.FC = () => {
                         <th className="p-4">{t.documentType}</th>
                         <th className="p-4">{t.expiresOn}</th>
                         <th className="p-4">{t.status}</th>
-                        <th className="p-4 text-center">Acción</th>
+                        <th className="p-4 text-center">{t.action}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -683,7 +683,7 @@ const App: React.FC = () => {
                                   }
                                   className="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-[11px] transition-colors"
                                 >
-                                  {daysLeft <= 30 ? 'Gestionar Renovación' : 'Ver Detalle'}
+                                  {daysLeft <= 30 ? t.manageRenewal : t.viewDetail}
                                 </button>
                               </td>
                             </tr>
@@ -705,24 +705,24 @@ const App: React.FC = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="glass-card p-4 rounded-2xl border border-indigo-500/20">
-                    <p className="text-xs font-semibold text-slate-400">Total Documentos Regulación</p>
+                    <p className="text-xs font-semibold text-slate-400">{t.totalRegDocs}</p>
                     <h4 className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">1,480</h4>
-                    <p className="text-[11px] text-emerald-500 mt-1">✓ 96.4% En Regla KHDA</p>
+                    <p className="text-[11px] text-emerald-500 mt-1">{t.inOrderKHDA}</p>
                   </div>
                   <div className="glass-card p-4 rounded-2xl border border-rose-500/20">
-                    <p className="text-xs font-semibold text-slate-400">Permisos Docentes Críticos</p>
+                    <p className="text-xs font-semibold text-slate-400">{t.criticalTeacherPermits}</p>
                     <h4 className="text-2xl font-extrabold text-rose-500 mt-1">4</h4>
-                    <p className="text-[11px] text-rose-400 mt-1">🚨 Alerta Vencimiento &lt;30d</p>
+                    <p className="text-[11px] text-rose-400 mt-1">{t.expiring30dAlert}</p>
                   </div>
                   <div className="glass-card p-4 rounded-2xl border border-amber-500/20">
-                    <p className="text-xs font-semibold text-slate-400">Visados en Trámite</p>
+                    <p className="text-xs font-semibold text-slate-400">{t.visasInProcessing}</p>
                     <h4 className="text-2xl font-extrabold text-amber-500 mt-1">12</h4>
-                    <p className="text-[11px] text-amber-400 mt-1">⚠️ Notificación Enviada</p>
+                    <p className="text-[11px] text-amber-400 mt-1">{t.notificationSent}</p>
                   </div>
                   <div className="glass-card p-4 rounded-2xl border border-emerald-500/20">
-                    <p className="text-xs font-semibold text-slate-400">Títulos Apostillados Validados</p>
+                    <p className="text-xs font-semibold text-slate-400">{t.attestedDegreesValidated}</p>
                     <h4 className="text-2xl font-extrabold text-emerald-500 mt-1">428</h4>
-                    <p className="text-[11px] text-slate-400 mt-1">Acreditación Ministerio Educación</p>
+                    <p className="text-[11px] text-slate-400 mt-1">{t.ministryAccreditation}</p>
                   </div>
                 </div>
 
@@ -731,10 +731,10 @@ const App: React.FC = () => {
                     <div>
                       <h3 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
                         <FileTextIcon className="w-5 h-5 text-indigo-500" />
-                        Matriz Documental de Cumplimiento Normativo KHDA
+                        {t.matrixTitle}
                       </h3>
                       <p className="text-xs text-slate-400">
-                        Visualizador de Permisos Docentes, Visados de Residencia, Emirates ID y Apostillas en los 37 Campus
+                        {t.matrixSubtitle}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 overflow-x-auto text-xs">
@@ -748,7 +748,7 @@ const App: React.FC = () => {
                               : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
                           }`}
                         >
-                          {cat === 'ALL' ? 'Todos' : cat === 'KHDA' ? 'Permiso KHDA' : cat === 'Visa' ? 'Visa' : cat === 'EmiratesID' ? 'Emirates ID' : cat === 'Medical' ? 'Aptitud Médica' : 'Título Apostillado'}
+                          {cat === 'ALL' ? t.filterAll : cat === 'KHDA' ? t.filterKHDA : cat === 'Visa' ? t.filterVisa : cat === 'EmiratesID' ? t.filterEmiratesID : cat === 'Medical' ? t.filterMedical : t.filterDegree}
                         </button>
                       ))}
                     </div>
@@ -763,7 +763,7 @@ const App: React.FC = () => {
                           <th className="p-4">{t.documentType}</th>
                           <th className="p-4">{t.expiresOn}</th>
                           <th className="p-4">{t.status}</th>
-                          <th className="p-4 text-center">Acción</th>
+                          <th className="p-4 text-center">{t.action}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -821,7 +821,7 @@ const App: React.FC = () => {
                                     }
                                     className="px-3 py-1 rounded-lg bg-indigo-600 text-white font-bold text-[11px] shadow-sm hover:bg-indigo-700 transition-colors"
                                   >
-                                    Ver Expediente
+                                    {t.viewRecord}
                                   </button>
                                 </td>
                               </tr>
@@ -843,7 +843,7 @@ const App: React.FC = () => {
                       {t.upcomingExpirations}
                     </h3>
                     <span className="text-xs text-slate-400 font-semibold">
-                      {alerts.length} alertas registradas
+                      {alerts.length} {t.registeredAlerts}
                     </span>
                   </div>
 
@@ -875,7 +875,7 @@ const App: React.FC = () => {
                             {alert.message}
                           </p>
                           <div className="mt-3 flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-700/50 pt-2 gap-2">
-                            <span>Destinatarios: <strong>{alert.recipients.join(', ')}</strong></span>
+                            <span>{t.recipientsLabel}: <strong>{alert.recipients.join(', ')}</strong></span>
                             <button
                               onClick={() =>
                                 handleOpenNotificationDraftModal({
@@ -893,7 +893,7 @@ const App: React.FC = () => {
                               className="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-extrabold text-[11px] transition-colors flex items-center gap-1"
                             >
                               <SparklesIcon className="w-3.5 h-3.5 text-indigo-500" />
-                              <span>Redactar / Rehacer Mensaje IA →</span>
+                              <span>{t.draftRedoAIMessage}</span>
                             </button>
                           </div>
                         </div>
@@ -913,16 +913,16 @@ const App: React.FC = () => {
                 <div className="glass-card p-6 rounded-2xl space-y-4">
                   <h4 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
                     <SettingsIcon className="w-5 h-5 text-indigo-500" />
-                    Reglas de Alerta Automática
+                    {t.autoAlertRules}
                   </h4>
                   <p className="text-xs text-slate-400 leading-relaxed">
-                    SATI envía avisos automáticos a los 120, 90, 60, 30, 15 y 7 días de anticipación por correo, SMS y llamadas automatizadas.
+                    {t.autoAlertDesc}
                   </p>
                   <button
                     onClick={() => setIsSettingsModalOpen(true)}
                     className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all"
                   >
-                    Personalizar Umbrales de Alerta
+                    {t.customizeThresholds}
                   </button>
                 </div>
               </div>
@@ -934,14 +934,14 @@ const App: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
-                      Red de 37 Campus Escolares en Dubái
+                      {t.campusesNetworkTitle}
                     </h3>
                     <p className="text-xs text-slate-400">
-                      Supervisión en tiempo real de cumplimiento KHDA, riesgo de multas y docentes activos
+                      {t.campusesNetworkSubtitle}
                     </p>
                   </div>
                   <span className="px-3 py-1 bg-indigo-500/10 text-indigo-500 font-bold text-xs rounded-full border border-indigo-500/20">
-                    37 Campus Activos
+                    {t.activeCampusesBadge}
                   </span>
                 </div>
 
@@ -953,19 +953,26 @@ const App: React.FC = () => {
                           #{idx + 1}
                         </div>
                         <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                          KHDA: Outstanding (98.4%)
+                          {t.outstandingScore}
                         </span>
                       </div>
                       <h4 className="font-bold text-sm text-slate-900 dark:text-white">{campusName}</h4>
                       <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-200/50 dark:border-slate-700/50 pt-2">
-                        <span>42 Personal Docente</span>
-                        <span className="text-emerald-500 font-bold">0 Multas</span>
+                        <span>{t.teachingStaffCount}</span>
+                        <span className="text-emerald-500 font-bold">{t.zeroFines}</span>
                       </div>
                       <button
-                        onClick={() => handleOpenAIDrawer(`Generar auditoría completa KHDA para el ${campusName}`)}
+                        onClick={() => {
+                          const query = lang === Language.ES 
+                            ? `Generar auditoría completa KHDA para el ${campusName}`
+                            : lang === Language.AR
+                            ? `إنشاء تدقيق كامل لـ KHDA لـ ${campusName}`
+                            : `Generate complete KHDA audit for ${campusName}`;
+                          handleOpenAIDrawer(query);
+                        }}
                         className="w-full py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-xs transition-colors"
                       >
-                        Auditar Campus con IA
+                        {t.auditCampusWithAI}
                       </button>
                     </div>
                   ))}
@@ -978,19 +985,19 @@ const App: React.FC = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="glass-card p-4 rounded-2xl border border-indigo-500/20">
-                    <p className="text-xs font-semibold text-slate-400">Total Docentes & Personal</p>
-                    <h4 className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">428 Docentes</h4>
-                    <p className="text-[11px] text-emerald-500 mt-1">✓ Registrados en 37 Campus</p>
+                    <p className="text-xs font-semibold text-slate-400">{t.totalTeachersStaffCard}</p>
+                    <h4 className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">428 {t.employee}</h4>
+                    <p className="text-[11px] text-emerald-500 mt-1">{t.registered37Campuses}</p>
                   </div>
                   <div className="glass-card p-4 rounded-2xl border border-emerald-500/20">
-                    <p className="text-xs font-semibold text-slate-400">Índice Aprobación KHDA</p>
+                    <p className="text-xs font-semibold text-slate-400">{t.khdaApprovalRate}</p>
                     <h4 className="text-2xl font-extrabold text-emerald-500 mt-1">97.8%</h4>
-                    <p className="text-[11px] text-slate-400 mt-1">Permisos de Enseñanza Aprobados</p>
+                    <p className="text-[11px] text-slate-400 mt-1">{t.teachingPermitsApproved}</p>
                   </div>
                   <div className="glass-card p-4 rounded-2xl border border-amber-500/20">
-                    <p className="text-xs font-semibold text-slate-400">Renovaciones Requeridas</p>
-                    <h4 className="text-2xl font-extrabold text-amber-500 mt-1">9 Docentes</h4>
-                    <p className="text-[11px] text-amber-400 mt-1">⚠️ Notificaciones IA Enviadas</p>
+                    <p className="text-xs font-semibold text-slate-400">{t.requiredRenewals}</p>
+                    <h4 className="text-2xl font-extrabold text-amber-500 mt-1">9 {t.employee}</h4>
+                    <p className="text-[11px] text-amber-400 mt-1">{t.aiNotifsSent}</p>
                   </div>
                 </div>
 
@@ -1009,12 +1016,14 @@ const App: React.FC = () => {
                       </div>
 
                       <div className="space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3">
-                        <p className="text-[11px] font-extrabold uppercase text-slate-400">Documentos KHDA Registrados:</p>
+                        <p className="text-[11px] font-extrabold uppercase text-slate-400">{t.registeredKHDADocs}</p>
                         {emp.documents.map((doc) => {
                           const daysLeft = getDaysRemaining(doc.expiryDate);
                           return (
                             <div key={doc.id} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-100/60 dark:bg-slate-800/60">
-                              <span className="font-semibold text-slate-700 dark:text-slate-300">{doc.type}</span>
+                              <span className="font-semibold text-slate-700 dark:text-slate-300">
+                                {t[doc.type.replace(/\s/g, '').toLowerCase() as keyof typeof t] || doc.type}
+                              </span>
                               <StatusBadge days={daysLeft} lang={lang} />
                             </div>
                           );
@@ -1035,13 +1044,13 @@ const App: React.FC = () => {
                           }
                           className="flex-1 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-all text-center"
                         >
-                          Ver Expediente
+                          {t.viewRecord}
                         </button>
                         <button
                           onClick={() => setIsUploadModalOpen(true)}
                           className="py-1.5 px-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all"
                         >
-                          Subir OCR
+                          {t.uploadOCR}
                         </button>
                       </div>
                     </div>

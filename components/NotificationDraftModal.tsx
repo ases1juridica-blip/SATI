@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Language } from '../types';
+import { translations } from '../constants';
 import { 
   CloseIcon, 
   EmailIcon, 
@@ -42,6 +43,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
   lang,
   onSendSuccess,
 }) => {
+  const t = translations[lang];
   const [selectedChannel, setSelectedChannel] = useState<NotificationChannel>('email');
   const [message, setMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -50,7 +52,6 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
 
   useEffect(() => {
     if (alertData) {
-      // Determine default channel from alertData.channels
       const firstChannel = alertData.channels[0]?.toLowerCase() || 'email';
       if (firstChannel.includes('whatsapp')) setSelectedChannel('whatsapp');
       else if (firstChannel.includes('telegram')) setSelectedChannel('telegram');
@@ -68,23 +69,34 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
   const handleRegenerateWithAI = async (channel: NotificationChannel) => {
     setIsGenerating(true);
     try {
-      const prompt = `Rehace y redacta una notificación oficial de alerta temprana de cumplimiento KHDA para ${alertData.employeeName} referente a su ${alertData.documentType} que vence el ${alertData.expiryDate} (${alertData.daysRemaining} días restantes) en el campus ${alertData.campus}. El canal de envío es ${channel.toUpperCase()}. Adapta el formato y tono al canal (ej. corto y directo para WhatsApp/Telegram/Discord con asteriscos, plantilla estructurada para Email con asunto, o guion telefónico para Llamada por IA). Idioma: ${lang}.`;
-      
+      const prompt = lang === Language.ES
+        ? `Rehace y redacta una notificación oficial de alerta temprana de cumplimiento KHDA para ${alertData.employeeName} referente a su ${alertData.documentType} que vence el ${alertData.expiryDate} (${alertData.daysRemaining} días restantes) en el campus ${alertData.campus}. El canal de envío es ${channel.toUpperCase()}. Adapta el formato y tono al canal. Idioma: ESPAÑOL.`
+        : lang === Language.AR
+        ? `أعد صياغة إشعار رسمي للتنبيه المبكر لالتزام KHDA لـ ${alertData.employeeName} بخصوص ${alertData.documentType} ينتهي في ${alertData.expiryDate} (${alertData.daysRemaining} أيام متبقية) في مجمع ${alertData.campus}. قناة الإرسال هي ${channel.toUpperCase()}. الرد باللغة العربية حصراً.`
+        : `Redraft an official KHDA early warning compliance alert notification for ${alertData.employeeName} regarding their ${alertData.documentType} expiring on ${alertData.expiryDate} (${alertData.daysRemaining} days remaining) at campus ${alertData.campus}. Delivery channel is ${channel.toUpperCase()}. Language: ENGLISH.`;
+
       const text = await askGeminiAssistant(prompt, [], lang);
       setMessage(text);
     } catch (err) {
       console.error('Error generating notification text:', err);
-      // Fallback templates per channel
-      if (channel === 'whatsapp') {
-        setMessage(`*SATI KHDA ALERT* 🚨\nEstimado/a *${alertData.employeeName}*,\nLe recordamos que su *${alertData.documentType}* en *${alertData.campus}* vence en *${alertData.daysRemaining} días* (${alertData.expiryDate}). Por favor entregue su documento actualizado.`);
-      } else if (channel === 'telegram') {
-        setMessage(`⚡ *Notificación SATI Compliance*\nDocente: *${alertData.employeeName}*\nDocumento: *${alertData.documentType}*\nVencimiento: *${alertData.expiryDate}* (${alertData.daysRemaining} días restantes)\nAcción requerida: Carga de archivo en portal SATI.`);
-      } else if (channel === 'discord') {
-        setMessage(`📌 **[SATI BOT ALERTA KHDA]**\n**Empleado:** ${alertData.employeeName}\n**Documento:** ${alertData.documentType}\n**Campus:** ${alertData.campus}\n**Días Restantes:** ${alertData.daysRemaining} días.\nPor favor regularizar trámite.`);
-      } else if (channel === 'phone') {
-        setMessage(`[Guion de Llamada IA de Voz]: "Hola ${alertData.employeeName}, le habla el sistema automatizado SATI. Le notificamos que su documento ${alertData.documentType} vence en ${alertData.daysRemaining} días. Presione 1 para contactar con Recursos Humanos."`);
+      if (lang === Language.AR) {
+        if (channel === 'whatsapp') {
+          setMessage(`*تنبيه SATI KHDA* 🚨\nعزيزي/تكي *${alertData.employeeName}*,\nنذكركم بأن *${alertData.documentType}* في *${alertData.campus}* ينتهي خلال *${alertData.daysRemaining} أيام* (${alertData.expiryDate}). يرجى تسليم الوثيقة المحدثة.`);
+        } else {
+          setMessage(`إشعار عاجل: تجديد ${alertData.documentType} المطلوب لـ ${alertData.employeeName}\nالمجمع: ${alertData.campus}\nتاريخ الانتهاء: ${alertData.expiryDate}`);
+        }
+      } else if (lang === Language.ES) {
+        if (channel === 'whatsapp') {
+          setMessage(`*SATI KHDA ALERT* 🚨\nEstimado/a *${alertData.employeeName}*,\nLe recordamos que su *${alertData.documentType}* en *${alertData.campus}* vence en *${alertData.daysRemaining} días* (${alertData.expiryDate}). Por favor entregue su documento actualizado.`);
+        } else {
+          setMessage(`ASUNTO: [URGENTE] Renovación Requerida: ${alertData.documentType} - ${alertData.employeeName}\n\nEstimado/a ${alertData.employeeName},\n\nLe notificamos que su ${alertData.documentType} asignado al campus ${alertData.campus} vence el ${alertData.expiryDate}.\n\nAtentamente,\nDepartamento de Cumplimiento KHDA`);
+        }
       } else {
-        setMessage(`ASUNTO: [URGENTE] Renovación Requerida: ${alertData.documentType} - ${alertData.employeeName}\n\nEstimado/a ${alertData.employeeName},\n\nLe notificamos que su ${alertData.documentType} asignado al campus ${alertData.campus} vence el ${alertData.expiryDate}.\n\nAtentamente,\nDepartamento de Cumplimiento KHDA`);
+        if (channel === 'whatsapp') {
+          setMessage(`*SATI KHDA ALERT* 🚨\nDear *${alertData.employeeName}*,\nThis is a reminder that your *${alertData.documentType}* at *${alertData.campus}* expires in *${alertData.daysRemaining} days* (${alertData.expiryDate}). Please submit your updated document.`);
+        } else {
+          setMessage(`SUBJECT: [URGENT] Renewal Required: ${alertData.documentType} - ${alertData.employeeName}\n\nDear ${alertData.employeeName},\n\nPlease be advised that your ${alertData.documentType} at ${alertData.campus} campus expires on ${alertData.expiryDate}.\n\nBest regards,\nKHDA Compliance Dept.`);
+        }
       }
     } finally {
       setIsGenerating(false);
@@ -111,14 +123,14 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
   const channelIcons: Record<NotificationChannel, { icon: React.ReactNode; label: string; bg: string; border: string; text: string }> = {
     email: {
       icon: <EmailIcon className="w-5 h-5" />,
-      label: 'Email',
+      label: t.email || 'Email',
       bg: 'bg-blue-500/10 dark:bg-blue-900/30',
       border: 'border-blue-500/30',
       text: 'text-blue-600 dark:text-blue-400',
     },
     phone: {
       icon: <PhoneIcon className="w-5 h-5" />,
-      label: 'Teléfono / Voz',
+      label: t.automatedCall || 'Phone / Voice',
       bg: 'bg-amber-500/10 dark:bg-amber-900/30',
       border: 'border-amber-500/30',
       text: 'text-amber-600 dark:text-amber-400',
@@ -156,9 +168,9 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
               <SparklesIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-extrabold">Redactar Notificación con IA</h3>
+              <h3 className="text-lg font-extrabold">{t.draftModalTitle}</h3>
               <p className="text-xs text-indigo-200">
-                Personaliza y rehace el mensaje enviado a {alertData.employeeName} ({alertData.documentType})
+                {t.draftModalSubtitle} {alertData.employeeName} ({alertData.documentType})
               </p>
             </div>
           </div>
@@ -175,7 +187,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
           {/* Channel Selector */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-              Canal de Notificación Enviado:
+              {t.sentChannelLabel}
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
               {(Object.keys(channelIcons) as NotificationChannel[]).map((ch) => {
@@ -204,7 +216,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                 <BotIcon className="w-4 h-4 text-indigo-500" />
-                Mensaje Redactado por IA ({channelIcons[selectedChannel].label}):
+                {t.aiDraftedMessage} ({channelIcons[selectedChannel].label}):
               </label>
               <button
                 onClick={() => handleRegenerateWithAI(selectedChannel)}
@@ -212,7 +224,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
                 className="text-xs font-extrabold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 disabled:opacity-50"
               >
                 <SparklesIcon className="w-3.5 h-3.5" />
-                {isGenerating ? 'Rehaciendo...' : 'Rehacer con Gemini IA'}
+                {isGenerating ? t.redoing : t.redoWithGemini}
               </button>
             </div>
 
@@ -222,12 +234,12 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
                 onChange={(e) => setMessage(e.target.value)}
                 rows={5}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-slate-900 dark:text-slate-100 font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
-                placeholder="Redactando mensaje automatizado..."
+                placeholder="..."
               />
               {isGenerating && (
                 <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-xs rounded-2xl flex items-center justify-center text-xs font-bold text-white gap-2">
                   <SparklesIcon className="w-5 h-5 animate-spin text-indigo-400" />
-                  <span>Optimizando mensaje para {channelIcons[selectedChannel].label}...</span>
+                  <span>{t.optimizingFor} {channelIcons[selectedChannel].label}...</span>
                 </div>
               )}
             </div>
@@ -236,10 +248,10 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
           {/* Live Preview Card */}
           <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
             <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
-              <span>VISTA PREVIA DEL ENVÍO ({channelIcons[selectedChannel].label})</span>
+              <span>{t.livePreview} ({channelIcons[selectedChannel].label})</span>
               <span className="text-emerald-500 font-bold flex items-center gap-1">
                 <CheckCircleIcon className="w-3.5 h-3.5" />
-                Webhook Listo
+                {t.webhookReady}
               </span>
             </div>
             <div className={`p-3 rounded-xl text-xs font-medium ${
@@ -253,7 +265,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
                 ? 'bg-amber-950/40 text-amber-200 border border-amber-800/40 font-sans'
                 : 'bg-slate-900 text-slate-200 font-sans'
             }`}>
-              {message || 'Esperando generación de mensaje...'}
+              {message || t.waitingMsgGen}
             </div>
           </div>
 
@@ -261,7 +273,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
           {sentSuccess && (
             <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2 animate-in fade-in">
               <CheckCircleIcon className="w-5 h-5 text-emerald-400" />
-              <span>Notificación reenviada exitosamente a través del canal {channelIcons[selectedChannel].label}!</span>
+              <span>{t.notifResentSuccess} {channelIcons[selectedChannel].label}!</span>
             </div>
           )}
 
@@ -271,7 +283,7 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
               onClick={onClose}
               className="px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              Cancelar
+              {t.cancel}
             </button>
             <button
               onClick={handleSendNotification}
@@ -281,12 +293,12 @@ export const NotificationDraftModal: React.FC<NotificationDraftModalProps> = ({
               {isSending ? (
                 <>
                   <SparklesIcon className="w-4 h-4 animate-spin" />
-                  <span>Enviando...</span>
+                  <span>{t.sending}</span>
                 </>
               ) : (
                 <>
                   {channelIcons[selectedChannel].icon}
-                  <span>Enviar Notificación por {channelIcons[selectedChannel].label}</span>
+                  <span>{t.sendingNotifBy} {channelIcons[selectedChannel].label}</span>
                 </>
               )}
             </button>

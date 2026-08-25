@@ -1,5 +1,6 @@
 import React from 'react';
 import { Language } from '../types';
+import { translations } from '../constants';
 import { CloseIcon, FileTextIcon, ShieldCheckIcon, AlertTriangleIcon, SparklesIcon, BotIcon, CalendarIcon, SchoolIcon } from './Icons';
 
 export interface DocumentDetailData {
@@ -30,6 +31,7 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
 }) => {
   if (!isOpen || !docDetail) return null;
 
+  const t = translations[lang];
   const isRtl = lang === Language.AR;
   const isCritical = docDetail.daysLeft <= 30;
   const isExpired = docDetail.daysLeft < 0;
@@ -52,7 +54,7 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
               </div>
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider opacity-80">
-                  {lang === Language.ES ? 'Expediente KHDA & Cumplimiento' : 'KHDA Compliance Record'}
+                  {t.khdaComplianceRecord}
                 </span>
                 <h3 className="text-xl font-extrabold">{docDetail.documentType}</h3>
               </div>
@@ -85,7 +87,7 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
               </div>
             </div>
             <span className="px-2.5 py-1 text-[11px] font-extrabold rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 whitespace-nowrap">
-              {docDetail.role || 'Docente KHDA'}
+              {docDetail.role || (lang === Language.ES ? 'Docente KHDA' : lang === Language.AR ? 'معلم KHDA' : 'KHDA Teacher')}
             </span>
           </div>
 
@@ -94,7 +96,7 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
             <div className="p-3.5 rounded-2xl bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 space-y-1">
               <span className="text-slate-400 font-semibold flex items-center gap-1">
                 <CalendarIcon className="w-3.5 h-3.5" />
-                Fecha de Vencimiento
+                {t.expiryDateLabel}
               </span>
               <p className="font-bold text-sm text-slate-900 dark:text-white font-mono">
                 {docDetail.expiryDate}
@@ -104,7 +106,7 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
             <div className="p-3.5 rounded-2xl bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 space-y-1">
               <span className="text-slate-400 font-semibold flex items-center gap-1">
                 <AlertTriangleIcon className="w-3.5 h-3.5" />
-                Estado de Riesgo
+                {t.riskStatusLabel}
               </span>
               <p className={`font-bold text-xs ${
                 isExpired
@@ -114,25 +116,25 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
                   : 'text-emerald-500'
               }`}>
                 {isExpired
-                  ? 'Vencido (Riesgo Multa KHDA)'
+                  ? t.expiredRiskText
                   : isCritical
-                  ? `Vence en ${docDetail.daysLeft} días (Atención)`
-                  : `Vigente (${docDetail.daysLeft} días restantes)`}
+                  ? t.criticalRiskText.replace('{days}', String(docDetail.daysLeft))
+                  : t.validRiskText.replace('{days}', String(docDetail.daysLeft))}
               </p>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 space-y-1">
-              <span className="text-slate-400 font-semibold">Ref / Expediente No.</span>
+              <span className="text-slate-400 font-semibold">{t.refNumber}</span>
               <p className="font-mono font-bold text-slate-700 dark:text-slate-300">
                 KHDA-UAE-{Math.floor(100000 + Math.random() * 900000)}
               </p>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 space-y-1">
-              <span className="text-slate-400 font-semibold">Validación Normativa</span>
+              <span className="text-slate-400 font-semibold">{t.regulatoryValidation}</span>
               <p className="font-bold text-emerald-500 flex items-center gap-1">
                 <ShieldCheckIcon className="w-4 h-4" />
-                Verificado SATI
+                {t.verifiedSATI}
               </p>
             </div>
           </div>
@@ -147,18 +149,23 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
               className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all"
             >
               <SparklesIcon className="w-4 h-4" />
-              <span>Cargar Nueva Versión o Escanear OCR</span>
+              <span>{t.uploadNewVersion}</span>
             </button>
 
             <button
               onClick={() => {
                 onClose();
-                onAskAI(`Analizar expediente de ${docDetail.employeeName} para el documento ${docDetail.documentType} con fecha de vencimiento ${docDetail.expiryDate}`);
+                const queryText = lang === Language.ES
+                  ? `Analizar expediente de ${docDetail.employeeName} para el documento ${docDetail.documentType} con fecha de vencimiento ${docDetail.expiryDate}`
+                  : lang === Language.AR
+                  ? `تحليل ملف ${docDetail.employeeName} للوثيقة ${docDetail.documentType} بتاريخ انتهاء ${docDetail.expiryDate}`
+                  : `Analyze compliance record for ${docDetail.employeeName} document ${docDetail.documentType} expiring on ${docDetail.expiryDate}`;
+                onAskAI(queryText);
               }}
               className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-2 transition-all"
             >
               <BotIcon className="w-4 h-4 text-indigo-500" />
-              <span>Consultar con Copilot IA en el Cajón</span>
+              <span>{t.consultCopilotDrawer}</span>
             </button>
           </div>
         </div>

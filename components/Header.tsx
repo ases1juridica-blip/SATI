@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Language } from '../types';
+import { translations } from '../constants';
 import { 
   MenuIcon, 
   SearchIcon, 
@@ -41,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
   criticalCount
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-
+  const t = translations[lang];
   const isRtl = lang === Language.AR;
 
   const LanguageButton: React.FC<{ targetLang: Language; label: string }> = ({ targetLang, label }) => {
@@ -84,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({
             <SearchIcon className="w-4 h-4 absolute left-3 rtl:right-3 rtl:left-auto top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder={lang === Language.ES ? '⌘K Buscar docentes, documentos...' : '⌘K Quick search...'}
+              placeholder={t.searchPlaceholder}
               onClick={onToggleAIDrawer}
               readOnly
               className="w-full pl-9 rtl:pr-9 rtl:pl-3 pr-3 py-1.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -116,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-md shadow-indigo-500/20 transition-transform transform hover:scale-105"
           >
             <SparklesIcon className="w-3.5 h-3.5" />
-            <span>{lang === Language.ES ? 'Escanear IA' : 'AI Scan'}</span>
+            <span>{t.aiScan}</span>
           </button>
 
           {/* Notifications Dropdown Toggle */}
@@ -138,20 +139,20 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="absolute right-0 rtl:left-0 rtl:right-auto mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 p-4">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2 mb-3">
                   <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-                    {lang === Language.ES ? 'Alertas Tempranas KHDA' : 'Early Warning Alerts'}
+                    {t.earlyWarningAlerts}
                   </h4>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold">
-                    {criticalCount} Activas
+                    {criticalCount} {t.activeAlerts}
                   </span>
                 </div>
                 <div className="space-y-2.5 max-h-60 overflow-y-auto">
                   <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-xs">
-                    <p className="font-bold text-rose-800 dark:text-rose-300">Elena Rostova (Permiso de Trabajo)</p>
-                    <p className="text-rose-600 dark:text-rose-400 text-[11px]">Vence en 5 días • Campus 03 Jumeirah</p>
+                    <p className="font-bold text-rose-800 dark:text-rose-300">Elena Rostova ({t.workPermit})</p>
+                    <p className="text-rose-600 dark:text-rose-400 text-[11px]">{t.expiresIn} 5 {t.daysLeft} • Campus 03 Jumeirah</p>
                   </div>
                   <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs">
-                    <p className="font-bold text-amber-800 dark:text-amber-300">Tariq Al-Mansoor (Salud Médica)</p>
-                    <p className="text-amber-600 dark:text-amber-400 text-[11px]">Vence en 6 días • Campus 02 Al Barsha</p>
+                    <p className="font-bold text-amber-800 dark:text-amber-300">Tariq Al-Mansoor ({t.medicalFitness})</p>
+                    <p className="text-amber-600 dark:text-amber-400 text-[11px]">{t.expiresIn} 6 {t.daysLeft} • Campus 02 Al Barsha</p>
                   </div>
                 </div>
               </div>
