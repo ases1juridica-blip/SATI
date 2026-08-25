@@ -16,6 +16,9 @@ import {
   CloseIcon
 } from './Icons';
 
+import logoImage from '../assets/cropped-jgrouptech-logo.png';
+import logoIcon from '../assets/cropped-cropped-LOGO-32x32.png';
+
 interface SidebarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
@@ -119,14 +122,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="hidden md:flex items-center space-x-2.5 rtl:space-x-reverse">
             {isCollapsed ? (
               <img 
-                src="assets/cropped-cropped-LOGO-32x32.png" 
+                src={logoIcon} 
                 alt="JGroupTech Logo" 
                 className="w-9 h-9 object-contain rounded-lg"
               />
             ) : (
               <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
                 <img 
-                  src="assets/cropped-jgrouptech-logo.png" 
+                  src={logoImage} 
                   alt="JGroupTech Logo" 
                   className="h-10 w-auto max-w-[150px] object-contain"
                 />

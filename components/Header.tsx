@@ -12,6 +12,8 @@ import {
   ChevronDownIcon
 } from './Icons';
 
+import logoImage from '../assets/cropped-jgrouptech-logo.png';
+
 interface HeaderProps {
   title: string;
   lang: Language;
@@ -75,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           <img 
-            src="assets/cropped-jgrouptech-logo.png" 
+            src={logoImage} 
             alt="JGroupTech Logo" 
             className="h-8 w-auto object-contain md:hidden"
           />
