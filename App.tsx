@@ -7,6 +7,7 @@ import { DocumentUpload } from './components/DocumentUpload';
 import { SettingsModal } from './components/SettingsModal';
 import { DocumentDetailModal, DocumentDetailData } from './components/DocumentDetailModal';
 import { NotificationDraftModal, NotificationDraftData } from './components/NotificationDraftModal';
+import { StockTickerStats } from './components/StockTickerStats';
 import { Employee, Document, DocumentType, ExtractedDocumentInfo, Language, Alert, AlertLevel, AlertSchedule } from './types';
 import { translations, INITIAL_ALERT_SCHEDULE } from './constants';
 import { 
@@ -454,94 +455,106 @@ const App: React.FC = () => {
             criticalAlertCount={criticalExpirationsCount}
           />
 
-          {/* Executive KPI Glassmorphism Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {/* KPI 1 */}
-            <div className="glass-card p-5 rounded-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
-                  {t.khdaComplianceScore}
-                </span>
-                <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500">
-                  <ShieldCheckIcon className="w-5 h-5" />
+          {/* Executive Stats: Full Cards on Dashboard, Stock Ticker on Other Tabs */}
+          {currentTab === 'dashboard' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* KPI 1 */}
+              <div className="glass-card p-5 rounded-2xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                    {t.khdaComplianceScore}
+                  </span>
+                  <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500">
+                    <ShieldCheckIcon className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
+                  <span className="text-3xl font-black text-slate-900 dark:text-white">96.4%</span>
+                  <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    {t.khdaReady}
+                  </span>
+                </div>
+                <div className="mt-3 w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full w-[96.4%]"></div>
                 </div>
               </div>
-              <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
-                <span className="text-3xl font-black text-slate-900 dark:text-white">96.4%</span>
-                <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                  {t.khdaReady}
-                </span>
-              </div>
-              <div className="mt-3 w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full w-[96.4%]"></div>
-              </div>
-            </div>
 
-            {/* KPI 2 */}
-            <div className="glass-card p-5 rounded-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
-                  {t.totalTeachersStaff}
-                </span>
-                <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
-                  <UserGroupIcon className="w-5 h-5" />
+              {/* KPI 2 */}
+              <div className="glass-card p-5 rounded-2xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                    {t.totalTeachersStaff}
+                  </span>
+                  <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
+                    <UserGroupIcon className="w-5 h-5" />
+                  </div>
                 </div>
+                <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
+                  <span className="text-3xl font-black text-slate-900 dark:text-white">
+                    {filteredEmployees.length * 42 + 814}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-400">{t.in37Campuses}</span>
+                </div>
+                <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  {t.realtimeKHDASync}
+                </p>
               </div>
-              <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
-                <span className="text-3xl font-black text-slate-900 dark:text-white">
-                  {filteredEmployees.length * 42 + 814}
-                </span>
-                <span className="text-xs font-semibold text-slate-400">{t.in37Campuses}</span>
-              </div>
-              <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                {t.realtimeKHDASync}
-              </p>
-            </div>
 
-            {/* KPI 3 */}
-            <div className="glass-card p-5 rounded-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
-                  {t.expiring30Days}
-                </span>
-                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-500">
-                  <AlertTriangleIcon className="w-5 h-5" />
+              {/* KPI 3 */}
+              <div className="glass-card p-5 rounded-2xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                    {t.expiring30Days}
+                  </span>
+                  <div className="p-2 rounded-xl bg-rose-500/10 text-rose-500">
+                    <AlertTriangleIcon className="w-5 h-5" />
+                  </div>
                 </div>
+                <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
+                  <span className="text-3xl font-black text-rose-600 dark:text-rose-400">
+                    {criticalExpirationsCount}
+                  </span>
+                  <span className="text-xs font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full animate-pulse">
+                    {t.fineRiskZero}
+                  </span>
+                </div>
+                <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  {t.immediateActionRequired}
+                </p>
               </div>
-              <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
-                <span className="text-3xl font-black text-rose-600 dark:text-rose-400">
-                  {criticalExpirationsCount}
-                </span>
-                <span className="text-xs font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full animate-pulse">
-                  {t.fineRiskZero}
-                </span>
-              </div>
-              <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                {t.immediateActionRequired}
-              </p>
-            </div>
 
-            {/* KPI 4 */}
-            <div className="glass-card p-5 rounded-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
-                  {t.fastEnrollmentModule}
-                </span>
-                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
-                  <SchoolIcon className="w-5 h-5" />
+              {/* KPI 4 */}
+              <div className="glass-card p-5 rounded-2xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                    {t.fastEnrollmentModule}
+                  </span>
+                  <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+                    <SchoolIcon className="w-5 h-5" />
+                  </div>
                 </div>
+                <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
+                  <span className="text-3xl font-black text-slate-900 dark:text-white">142</span>
+                  <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    {t.activeIntake}
+                  </span>
+                </div>
+                <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  {t.studentTransferModule}
+                </p>
               </div>
-              <div className="flex items-baseline space-x-2 rtl:space-x-reverse">
-                <span className="text-3xl font-black text-slate-900 dark:text-white">142</span>
-                <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                  {t.activeIntake}
-                </span>
-              </div>
-              <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                {t.studentTransferModule}
-              </p>
             </div>
-          </div>
+          ) : (
+            <StockTickerStats
+              lang={lang}
+              criticalCount={criticalExpirationsCount}
+              totalEmployees={filteredEmployees.length * 42 + 814}
+              complianceScore="96.4%"
+              activeTransfers={142}
+              onSelectTab={(tab) => setCurrentTab(tab)}
+              onAskAI={(query) => handleOpenAIDrawer(query)}
+            />
+          )}
 
           {/* Main Content Workspace Tabs */}
           <div className="space-y-6">
