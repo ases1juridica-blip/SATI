@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Language, ExtractedDocumentInfo } from '../types';
 import { translations } from '../constants';
-import { BotIcon, CloseIcon, SparklesIcon, FileTextIcon, ShieldCheckIcon, CheckCircleIcon } from './Icons';
-import { askGeminiAssistant, checkGeminiConnection } from '../services/geminiService';
+import { BotIcon, CloseIcon, SparklesIcon, FileTextIcon, ShieldCheckIcon, CheckCircleIcon, SettingsIcon } from './Icons';
+import { askGeminiAssistant, checkGeminiConnection, getStoredApiKey, saveCustomApiKey, removeCustomApiKey } from '../services/geminiService';
 import { GeminiLiveWebSocket, ConnectionStatus } from '../services/geminiLiveWebSocket';
 
 interface AIAssistantDrawerProps {
@@ -12,6 +12,7 @@ interface AIAssistantDrawerProps {
   initialQuery?: string;
   processedDoc?: ExtractedDocumentInfo | null;
   onOpenUpload: () => void;
+  systemContext?: string;
 }
 
 interface Message {
@@ -47,7 +48,8 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
   lang,
   initialQuery,
   processedDoc,
-  onOpenUpload
+  onOpenUpload,
+  systemContext
 }) => {
   const t = translations[lang];
 
@@ -57,21 +59,28 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
       sender: 'ai',
       text:
         lang === Language.ES
-          ? '¡Hola! Soy **SATI Copilot (Gemini Live WebSocket AI)**, tu asistente especializado en el Sistema de Alerta Temprana y regulación docente KHDA en los 37 campus de Dubái. ¿En qué puedo ayudarte hoy?'
+          ? '¡Hola! Soy **SATI Copilot (Gemini AI & RAG Context)**, tu asistente especializado en el Sistema de Alerta Temprana y regulación docente KHDA en los 37 campus de Dubái. ¿En qué puedo ayudarte hoy?'
           : lang === Language.AR
-          ? 'مرحباً! أنا مساعد SATI الذكي المباشر (Gemini Live WebSocket AI). كيف يمكنني مساعدتك اليوم؟'
-          : 'Hello! I am **SATI Copilot (Gemini Live WebSocket AI)**, your intelligent assistant for KHDA compliance & early warning alerts in Dubai. How can I help you today?',
+          ? 'مرحباً! أنا مساعد SATI الذكي (Gemini AI & RAG Context). كيف يمكنني مساعدتك اليوم؟'
+          : 'Hello! I am **SATI Copilot (Gemini AI & RAG Context)**, your intelligent assistant for KHDA compliance & early warning alerts across 37 Dubai campuses. How can I help you today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [useWebSocketMode, setUseWebSocketMode] = useState<boolean>(true);
   const [wsStatus, setWsStatus] = useState<ConnectionStatus>('disconnected');
+  const [showKeyConfig, setShowKeyConfig] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [connectionCheck, setConnectionCheck] = useState<{ connected: boolean; source: string; keyPreview: string } | null>(null);
 
   const liveWsRef = useRef<GeminiLiveWebSocket | null>(null);
   const activeAiMsgIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setApiKeyInput(getStoredApiKey());
+    checkGeminiConnection().then(setConnectionCheck);
+  }, [isOpen]);
 
   useEffect(() => {
     setMessages((prev) => {
@@ -82,10 +91,10 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
             sender: 'ai',
             text:
               lang === Language.ES
-                ? '¡Hola! Soy **SATI Copilot (Gemini Live WebSocket AI)**, tu asistente especializado en el Sistema de Alerta Temprana y regulación docente KHDA en los 37 campus de Dubái. ¿En qué puedo ayudarte hoy?'
+                ? '¡Hola! Soy **SATI Copilot (Gemini AI & RAG Context)**, tu asistente especializado en el Sistema de Alerta Temprana y regulación docente KHDA en los 37 campus de Dubái. ¿En qué puedo ayudarte hoy?'
                 : lang === Language.AR
-                ? 'مرحباً! أنا مساعد SATI الذكي المباشر (Gemini Live WebSocket AI). كيف يمكنني مساعدتك اليوم؟'
-                : 'Hello! I am **SATI Copilot (Gemini Live WebSocket AI)**, your intelligent assistant for KHDA compliance & early warning alerts in Dubai. How can I help you today?',
+                ? 'مرحباً! أنا مساعد SATI الذكي (Gemini AI & RAG Context). كيف يمكنني مساعدتك اليوم؟'
+                : 'Hello! I am **SATI Copilot (Gemini AI & RAG Context)**, your intelligent assistant for KHDA compliance & early warning alerts across 37 Dubai campuses. How can I help you today?',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }
         ];
@@ -97,54 +106,59 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
   // Initialize Gemini Live WebSocket Connection
   useEffect(() => {
     if (isOpen && useWebSocketMode) {
-      const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+      const apiKey = getStoredApiKey() || process.env.GEMINI_API_KEY || process.env.API_KEY || '';
       const langName = lang === Language.AR ? 'Arabic (العربية)' : lang === Language.ES ? 'Spanish (Español)' : 'English';
 
-      const liveWs = new GeminiLiveWebSocket({
-        onStatusChange: (status) => {
-          setWsStatus(status);
-        },
-        onTextReceived: (streamedText, isFinished) => {
-          setIsTyping(!isFinished);
-          if (activeAiMsgIdRef.current) {
-            const msgId = activeAiMsgIdRef.current;
-            setMessages((prev) =>
-              prev.map((msg) => (msg.id === msgId ? { ...msg, text: streamedText } : msg))
-            );
-          } else {
-            const newMsgId = `ai-ws-${Date.now()}`;
-            activeAiMsgIdRef.current = newMsgId;
-            const newMsg: Message = {
-              id: newMsgId,
-              sender: 'ai',
-              text: streamedText,
-              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
-            setMessages((prev) => [...prev, newMsg]);
-          }
+      if (apiKey && apiKey.startsWith('AIzaSy')) {
+        const liveWs = new GeminiLiveWebSocket({
+          onStatusChange: (status) => {
+            setWsStatus(status);
+          },
+          onTextReceived: (streamedText, isFinished) => {
+            setIsTyping(!isFinished);
+            if (activeAiMsgIdRef.current) {
+              const msgId = activeAiMsgIdRef.current;
+              setMessages((prev) =>
+                prev.map((msg) => (msg.id === msgId ? { ...msg, text: streamedText } : msg))
+              );
+            } else {
+              const newMsgId = `ai-ws-${Date.now()}`;
+              activeAiMsgIdRef.current = newMsgId;
+              const newMsg: Message = {
+                id: newMsgId,
+                sender: 'ai',
+                text: streamedText,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              };
+              setMessages((prev) => [...prev, newMsg]);
+            }
 
-          if (isFinished) {
-            activeAiMsgIdRef.current = null;
+            if (isFinished) {
+              activeAiMsgIdRef.current = null;
+            }
+          },
+          onError: (err) => {
+            console.warn('[Gemini Live WS] Fallback to REST / Smart RAG:', err);
           }
-        },
-        onError: (err) => {
-          console.warn('[Gemini Live WS] Connection error, fallback to REST:', err);
-        }
-      });
+        });
 
-      const systemPrompt = `CRITICAL MANDATE: You MUST answer ALL responses 100% strictly and ONLY in ${langName}.
+        const systemPrompt = `CRITICAL MANDATE: You MUST answer ALL responses 100% strictly and ONLY in ${langName}.
 Translate ALL section headers, titles, bullet points, formatting, and body text into ${langName}. Do NOT use any English headings or any other language under any circumstance.
-You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Alerta Temprana y Cumplimiento KHDA) for 37 school campuses in Dubai. Respond in ${langName}.`;
+You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Alerta Temprana y Cumplimiento KHDA) for 37 school campuses in Dubai. Respond in ${langName}.
+${systemContext ? `\n--- CURRENT REAL-TIME SYSTEM DATA CONTEXT ---\n${systemContext}\n--- END CONTEXT ---\n` : ''}`;
 
-      liveWs.connect(apiKey, systemPrompt, true);
-      liveWsRef.current = liveWs;
+        liveWs.connect(apiKey, systemPrompt, true);
+        liveWsRef.current = liveWs;
 
-      return () => {
-        liveWs.disconnect();
-        liveWsRef.current = null;
-      };
+        return () => {
+          liveWs.disconnect();
+          liveWsRef.current = null;
+        };
+      } else {
+        setWsStatus('disconnected');
+      }
     }
-  }, [isOpen, useWebSocketMode, lang]);
+  }, [isOpen, useWebSocketMode, lang, systemContext]);
 
   useEffect(() => {
     if (processedDoc) {
@@ -153,6 +167,12 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
       handleSendUserQuery(initialQuery);
     }
   }, [initialQuery, processedDoc]);
+
+  const handleSaveApiKey = () => {
+    saveCustomApiKey(apiKeyInput);
+    checkGeminiConnection().then(setConnectionCheck);
+    setShowKeyConfig(false);
+  };
 
   const handleDocumentProcessedMessage = async (doc: ExtractedDocumentInfo) => {
     const docPrompt = lang === Language.ES
@@ -184,13 +204,13 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
       if (sent) return;
     }
 
-    // Fallback REST call
+    // Fallback REST call with full System Context
     const historyForAi = messages.map(m => ({
       role: (m.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
       text: m.text
     }));
 
-    const aiResponseText = await askGeminiAssistant(queryText, historyForAi, lang);
+    const aiResponseText = await askGeminiAssistant(queryText, historyForAi, lang, systemContext);
 
     const aiMsg: Message = {
       id: `ai-${Date.now()}`,
@@ -232,26 +252,82 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                       WS Live
                     </span>
-                  ) : isConnected === true ? (
+                  ) : connectionCheck?.connected ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/30">
-                      Gemini API
+                      Gemini 2.5
                     </span>
                   ) : (
-                    <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      RAG Context AI
+                    </span>
                   )}
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {wsStatus === 'connected' ? t.wsLiveActive : t.connectedGemini}
+                  {wsStatus === 'connected' ? t.wsLiveActive : connectionCheck?.connected ? 'Gemini Cloud AI Conectado' : 'Motor RAG Contextual Activo'}
                 </p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              <CloseIcon className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setShowKeyConfig(!showKeyConfig)}
+                className={`p-2 rounded-lg transition-colors ${showKeyConfig ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                title="Configurar Google Gemini API Key"
+              >
+                <SettingsIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <CloseIcon className="w-5 h-5" />
+              </button>
+            </div>
           </div>
+
+          {/* Key Configuration Dropdown */}
+          {showKeyConfig && (
+            <div className="p-4 bg-indigo-950/40 border-b border-indigo-500/30 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white flex items-center gap-1.5">
+                  <SparklesIcon className="w-4 h-4 text-indigo-400" />
+                  Google Gemini API Key
+                </span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${connectionCheck?.connected ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-300'}`}>
+                  {connectionCheck?.connected ? 'Conectado ✓' : 'Modo RAG Local'}
+                </span>
+              </div>
+              <p className="text-slate-300 text-[11px]">
+                Ingresa tu API Key de Google AI Studio (`AIzaSy...`) para streaming en vivo en la nube o usa el motor RAG local integrado.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="flex-1 px-3 py-1.5 bg-slate-900 border border-indigo-500/30 rounded-xl text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                />
+                <button
+                  onClick={handleSaveApiKey}
+                  className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs"
+                >
+                  Guardar
+                </button>
+                {getStoredApiKey() && (
+                  <button
+                    onClick={() => {
+                      removeCustomApiKey();
+                      setApiKeyInput('');
+                      checkGeminiConnection().then(setConnectionCheck);
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs"
+                  >
+                    Borrar
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Quick Action Bar */}
           <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border-b border-indigo-100 dark:border-indigo-900/30 flex items-center gap-2 overflow-x-auto text-xs">
@@ -270,15 +346,10 @@ You are SATI Copilot, an expert AI Assistant integrated into SATI (Sistema de Al
               <span>{t.khdaReport}</span>
             </button>
             <button
-              onClick={() => setUseWebSocketMode(!useWebSocketMode)}
-              className={`px-2.5 py-1 rounded-lg font-medium text-[11px] flex items-center gap-1 flex-shrink-0 transition-all ${
-                useWebSocketMode
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-              }`}
-              title={t.wsStreamTooltip}
+              onClick={() => handleSendUserQuery(lang === Language.ES ? 'Auditoría de vencimientos críticos de visados en los 37 campus' : 'Critical visa expiration audit across all 37 campuses')}
+              className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 font-medium flex items-center gap-1 flex-shrink-0 hover:border-rose-400 transition-all"
             >
-              ⚡ WS Stream
+              <span>🚨 Visas &lt;30d</span>
             </button>
           </div>
 

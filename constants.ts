@@ -507,3 +507,63 @@ export const INITIAL_ALERT_SCHEDULE: AlertSchedule = {
         { id: 'd4', days: 7, level: AlertLevel.Critical, message: "CRITICAL ALERT: FINAL ALERT! Your document expires in 7 days. Imminent risk of fines and work suspension.", recipients: ['Employee', 'HR', 'Manager', 'Director'], channels: ['Email', 'Phone', 'WhatsApp'] },
     ]
 };
+
+export const DUBAI_CAMPUSES = [
+  'All 37 Dubai Campuses',
+  'Campus 01 - Dubai Marina',
+  'Campus 02 - Al Barsha',
+  'Campus 03 - Jumeirah',
+  'Campus 04 - Silicon Oasis',
+  'Campus 05 - Dubai South',
+  'Campus 06 - Downtown Dubai',
+  'Campus 07 - Academic City',
+  'Campus 08 - Arabian Ranches',
+];
+
+export const INITIAL_EMPLOYEES = [
+  {
+    id: 'emp-1',
+    name: 'Sarah Jenkins (Math Teacher)',
+    campus: 'Campus 01 - Dubai Marina',
+    role: 'Teacher',
+    documents: [
+      { id: 'doc-1', type: 'Visa', expiryDate: '2026-09-14' },
+      { id: 'doc-2', type: 'KHDA Permit', expiryDate: '2026-09-08' },
+      { id: 'doc-3', type: 'Emirates ID', expiryDate: '2027-02-15' },
+      { id: 'doc-4', type: 'Medical Fitness', expiryDate: '2027-05-20' },
+      { id: 'doc-5', type: 'Attested Degree', expiryDate: '2029-12-31' },
+    ]
+  },
+  {
+    id: 'emp-2',
+    name: 'Carlos Mendoza (Science Lead)',
+    campus: 'Campus 01 - Dubai Marina',
+    role: 'Head of Science',
+    documents: [
+      { id: 'doc-6', type: 'Visa', expiryDate: '2026-09-14' },
+      { id: 'doc-7', type: 'KHDA Permit', expiryDate: '2026-10-10' },
+      { id: 'doc-8', type: 'Emirates ID', expiryDate: '2026-11-20' },
+    ]
+  },
+  {
+    id: 'emp-3',
+    name: 'Tariq Al-Mansoor (Arabic Studies)',
+    campus: 'Campus 02 - Al Barsha',
+    role: 'Senior Arabic Teacher',
+    documents: [
+      { id: 'doc-9', type: 'Medical Fitness', expiryDate: '2026-08-31' },
+      { id: 'doc-10', type: 'KHDA Permit', expiryDate: '2027-01-15' },
+    ]
+  },
+  {
+    id: 'emp-4',
+    name: 'Elena Rostova (Music Instructor)',
+    campus: 'Campus 03 - Jumeirah',
+    role: 'Music Teacher',
+    documents: [
+      { id: 'doc-11', type: 'Work Permit', expiryDate: '2026-08-30' },
+      { id: 'doc-12', type: 'Visa', expiryDate: '2026-09-05' },
+    ]
+  }
+];
+

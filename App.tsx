@@ -1109,6 +1109,7 @@ const App: React.FC = () => {
           setIsAIDrawerOpen(false);
           setIsUploadModalOpen(true);
         }}
+        systemContext={`Current Selected Campus: ${selectedCampus}. Total Dubai Campuses: 37. Total Employees: ${filteredEmployees.length * 42 + 814}. Active Alerts: ${alerts.length}. Critical Expirations (<30 days): ${criticalExpirationsCount}. Compliance Score: 96.4%. Recent staff in need of renewal: Elena Rostova (Campus 03 Jumeirah, Work Permit expires in 5 days), Tariq Al-Mansoor (Campus 02 Al Barsha, Medical Fitness expires in 6 days), Sarah Al-Hassan (Campus 01 Dubai Marina, KHDA Permit expires in 14 days), Carlos Mendoza (Campus 01 Dubai Marina, Visa expires in 20 days).`}
       />
 
       <SettingsModal
